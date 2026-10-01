@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="OptiLive" android:textSize="32sp" android:textStyle="bold"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Perfil del regatista" android:textSize="18sp" android:layout_marginBottom="16dp"/>
+        <EditText android:id="@+id/sailNumber" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Número de vela"/>
+        <EditText android:id="@+id/firstName" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Nombre"/>
+        <EditText android:id="@+id/lastName" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Apellidos"/>
+        <EditText android:id="@+id/category" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Categoría (Sub11, Sub13...)"/>
+        <EditText android:id="@+id/club" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Club"/>
+        <Button android:id="@+id/saveButton" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Guardar perfil" android:layout_marginTop="20dp"/>
+        <TextView android:id="@+id/status" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Perfil pendiente" android:textSize="16sp" android:layout_marginTop="20dp"/>
+    </LinearLayout>
+</ScrollView>
