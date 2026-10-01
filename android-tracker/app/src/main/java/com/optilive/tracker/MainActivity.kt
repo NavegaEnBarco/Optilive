@@ -40,17 +40,19 @@ class MainActivity : AppCompatActivity() {
         val last = findViewById<EditText>(R.id.lastName)
         val category = findViewById<EditText>(R.id.category)
         val club = findViewById<EditText>(R.id.club)
+        val serverUrl = findViewById<EditText>(R.id.serverUrl)
         val prefs = getSharedPreferences("optilive_profile", MODE_PRIVATE)
         sail.setText(prefs.getString("sail", ""))
         first.setText(prefs.getString("first", ""))
         last.setText(prefs.getString("last", ""))
         category.setText(prefs.getString("category", ""))
         club.setText(prefs.getString("club", ""))
+        serverUrl.setText(prefs.getString("server_url", ""))
 
         findViewById<Button>(R.id.saveButton).setOnClickListener {
             prefs.edit().putString("sail", sail.text.toString().trim()).putString("first", first.text.toString().trim())
                 .putString("last", last.text.toString().trim()).putString("category", category.text.toString().trim())
-                .putString("club", club.text.toString().trim()).apply()
+                .putString("club", club.text.toString().trim()).putString("server_url", serverUrl.text.toString().trim()).apply()
             Toast.makeText(this, "Perfil guardado", Toast.LENGTH_SHORT).show()
         }
         findViewById<Button>(R.id.startTracking).setOnClickListener { requestAndStart() }
