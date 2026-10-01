@@ -5,6 +5,9 @@ import android.app.*
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.location.LocationManager
+import android.location.GnssStatus
+import android.os.Build
 import android.os.IBinder
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -21,6 +24,15 @@ class LocationService : Service() {
     private var sent = 0
     private var distanceM = 0f
     private var previous: Location? = null
+    private lateinit var locationManager: LocationManager
+    private var satellitesUsed = 0
+    private val gnssCallback = object : GnssStatus.Callback() {
+        override fun onSatelliteStatusChanged(status: GnssStatus) {
+            var used = 0
+            for (i in 0 until status.satelliteCount) if (status.usedInFix(i)) used++
+            satellitesUsed = used
+        }
+    }
 
     private val callback = object : LocationCallback() {
         override fun onLocationResult(result: LocationResult) {
@@ -33,7 +45,7 @@ class LocationService : Service() {
         }
     }
 
-    override fun onCreate() { super.onCreate(); createChannel(); client=LocationServices.getFusedLocationProviderClient(this) }
+    override fun onCreate() { super.onCreate(); createChannel(); client=LocationServices.getFusedLocationProviderClient(this); locationManager=getSystemService(LocationManager::class.java) }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         startForeground(1001, NotificationCompat.Builder(this, CHANNEL)
@@ -41,6 +53,7 @@ class LocationService : Service() {
             .setContentText("Seguimiento de regata activo").setOngoing(true).build())
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED) {
             client.requestLocationUpdates(LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY,2000L).setMinUpdateIntervalMillis(1000L).build(),callback,mainLooper)
+            locationManager.registerGnssStatusCallback(gnssCallback, android.os.Handler(mainLooper))
         }
         return START_STICKY
     }
@@ -48,7 +61,7 @@ class LocationService : Service() {
     private fun broadcastGps(l: Location, knots: Float) {
         sendBroadcast(Intent(ACTION_LOCATION).setPackage(packageName)
             .putExtra("lat",l.latitude).putExtra("lon",l.longitude).putExtra("accuracy",l.accuracy)
-            .putExtra("speed",knots).putExtra("distance",distanceM))
+            .putExtra("speed",knots).putExtra("distance",distanceM).putExtra("satellites",satellitesUsed))
     }
 
     private fun enqueue(l: Location, knots: Float) {
@@ -99,7 +112,7 @@ class LocationService : Service() {
         sendBroadcast(Intent(ACTION_SERVER).setPackage(packageName).putExtra("connected",connected).putExtra("sent",sent).putExtra("pending",pending))
     }
 
-    override fun onDestroy(){client.removeLocationUpdates(callback);io.shutdown();super.onDestroy()}
+    override fun onDestroy(){client.removeLocationUpdates(callback); try { locationManager.unregisterGnssStatusCallback(gnssCallback) } catch(_:Exception){}; io.shutdown();super.onDestroy()}
     override fun onBind(intent:Intent?):IBinder?=null
     private fun createChannel(){getSystemService(NotificationManager::class.java).createNotificationChannel(NotificationChannel(CHANNEL,"Seguimiento GPS",NotificationManager.IMPORTANCE_LOW))}
     companion object{const val CHANNEL="optilive_gps";const val ACTION_LOCATION="com.optilive.tracker.LOCATION";const val ACTION_SERVER="com.optilive.tracker.SERVER"}
