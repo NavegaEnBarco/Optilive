@@ -25,12 +25,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var lonDisplay: TextView
     private lateinit var accuracyDisplay: TextView
     private lateinit var lastPosition: TextView
+    private lateinit var satelliteDisplay: TextView
 
     private val locationReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val lat = intent?.getDoubleExtra("lat", 0.0) ?: 0.0
             val lon = intent?.getDoubleExtra("lon", 0.0) ?: 0.0
             val acc = intent?.getFloatExtra("accuracy", 0f) ?: 0f
+            val satellites = intent?.getIntExtra("satellites", 0) ?: 0
+            satelliteDisplay.text = "$satellites sat."
             status.text = "●  GPS ACTIVO\nPrecisión %.1f m".format(acc)
             val speed = intent?.getFloatExtra("speed", 0f) ?: 0f
             val distance = intent?.getFloatExtra("distance", 0f) ?: 0f
@@ -79,6 +82,7 @@ class MainActivity : AppCompatActivity() {
         lonDisplay = findViewById(R.id.lonDisplay)
         accuracyDisplay = findViewById(R.id.accuracyDisplay)
         lastPosition = findViewById(R.id.lastPosition)
+        satelliteDisplay = findViewById(R.id.satelliteDisplay)
 
         val sail = findViewById<EditText>(R.id.sailNumber)
         val first = findViewById<EditText>(R.id.firstName)
