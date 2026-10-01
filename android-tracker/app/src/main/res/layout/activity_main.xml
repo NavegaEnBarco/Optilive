@@ -1,24 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="#F4F7FA">
- <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="#07558A" android:padding="20dp">
-  <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="OptiLive" android:textColor="#FFFFFF" android:textSize="32sp" android:textStyle="bold"/>
-  <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="TRACKING OPTIMIST · PRO" android:textColor="#BDE8FF" android:textSize="12sp"/>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="#F7F9FC">
+ <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:background="#FFFFFF" android:padding="18dp">
+  <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="◢  OptiLive\n     TRACKING OPTIMIST" android:textColor="#07558A" android:textSize="25sp" android:textStyle="bold"/>
+  <TextView android:id="@+id/topSettings" android:layout_width="48dp" android:layout_height="48dp" android:gravity="center" android:text="⚙" android:textSize="27sp" android:textColor="#07558A"/>
  </LinearLayout>
  <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
   <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="18dp">
-   <TextView android:id="@+id/sailDisplay" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="ESP ----" android:textColor="#102A43" android:textSize="28sp" android:textStyle="bold"/>
-   <TextView android:id="@+id/sailorDisplay" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Regatista · Categoría · Club" android:textColor="#627D98" android:textSize="16sp" android:layout_marginBottom="14dp"/>
-   <TextView android:id="@+id/status" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/card_green" android:padding="15dp" android:text="GPS DETENIDO" android:textColor="#087F5B" android:textSize="19sp" android:textStyle="bold"/>
+   <TextView android:id="@+id/sailDisplay" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/card_white" android:padding="14dp" android:text="🇪🇸  ESP ----" android:textColor="#102A43" android:textSize="28sp" android:textStyle="bold"/>
+   <TextView android:id="@+id/sailorDisplay" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Regatista&#10;Categoría  |  Club" android:textColor="#627D98" android:textSize="16sp" android:layout_marginBottom="14dp"/>
+   <TextView android:id="@+id/status" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/card_green" android:padding="15dp" android:text="●  GPS DETENIDO&#10;Esperando señal" android:textColor="#087F5B" android:textSize="19sp" android:textStyle="bold"/>
    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="10dp">
-    <TextView android:id="@+id/speedDisplay" android:layout_width="0dp" android:layout_weight="1" android:layout_height="110dp" android:gravity="center" android:background="@drawable/card_white" android:text="0.0 kn\nVELOCIDAD" android:textColor="#102A43" android:textSize="18sp" android:textStyle="bold"/>
+    <TextView android:id="@+id/speedDisplay" android:layout_width="0dp" android:layout_weight="1" android:layout_height="110dp" android:gravity="center" android:background="@drawable/card_white" android:text="0,0&#10;nudos&#10;Velocidad" android:textColor="#102A43" android:textSize="18sp" android:textStyle="bold"/>
     <Space android:layout_width="8dp" android:layout_height="1dp"/>
-    <TextView android:id="@+id/distanceDisplay" android:layout_width="0dp" android:layout_weight="1" android:layout_height="110dp" android:gravity="center" android:background="@drawable/card_white" android:text="0 m\nDISTANCIA" android:textColor="#102A43" android:textSize="18sp" android:textStyle="bold"/>
+    <TextView android:id="@+id/distanceDisplay" android:layout_width="0dp" android:layout_weight="1" android:layout_height="110dp" android:gravity="center" android:background="@drawable/card_white" android:text="0&#10;m&#10;Distancia recorrida" android:textColor="#102A43" android:textSize="18sp" android:textStyle="bold"/>
    </LinearLayout>
    <TextView android:id="@+id/telemetry" android:visibility="gone" android:layout_width="1dp" android:layout_height="1dp"/>
+   <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="8dp">
+    <TextView android:id="@+id/sentDisplay" android:layout_width="0dp" android:layout_weight="1" android:layout_height="72dp" android:gravity="center" android:background="@drawable/card_white" android:text="0&#10;posiciones enviadas"/>
+    <Space android:layout_width="8dp" android:layout_height="1dp"/>
+    <TextView android:id="@+id/pendingDisplay" android:layout_width="0dp" android:layout_weight="1" android:layout_height="72dp" android:gravity="center" android:background="@drawable/card_white" android:text="0&#10;pendientes (offline)"/>
+   </LinearLayout>
    <TextView android:id="@+id/serverStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/card_white" android:padding="15dp" android:text="Servidor: esperando datos" android:textColor="#334E68" android:textSize="15sp" android:layout_marginTop="8dp"/>
    <Button android:id="@+id/startTracking" android:layout_width="match_parent" android:layout_height="62dp" android:text="▶  INICIAR SEGUIMIENTO" android:textSize="17sp" android:layout_marginTop="14dp"/>
-   <Button android:id="@+id/stopTracking" android:layout_width="match_parent" android:layout_height="56dp" android:text="■  DETENER SEGUIMIENTO" android:textColor="#E03131" android:background="@drawable/button_stop"/>
-   <TextView android:id="@+id/coordinates" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/card_white" android:padding="14dp" android:text="Esperando posición..." android:textColor="#627D98" android:textSize="14sp" android:layout_marginTop="8dp"/>
+   <TextView android:id="@+id/stopTracking" android:gravity="center" android:layout_width="match_parent" android:layout_height="56dp" android:text="■  DETENER SEGUIMIENTO" android:textColor="#E03131" android:background="@drawable/button_stop"/>
+   <TextView android:id="@+id/lastPosition" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:padding="8dp" android:text="Última posición: --:--:--" android:textColor="#7A8795"/>
+   <LinearLayout android:layout_width="match_parent" android:layout_height="74dp" android:orientation="horizontal" android:background="@drawable/card_white">
+    <TextView android:id="@+id/latDisplay" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="center" android:text="Latitud&#10;--"/>
+    <TextView android:id="@+id/lonDisplay" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="center" android:text="Longitud&#10;--"/>
+    <TextView android:id="@+id/accuracyDisplay" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="center" android:text="Precisión&#10;--"/>
+   </LinearLayout>
+   <TextView android:id="@+id/coordinates" android:visibility="gone" android:layout_width="1dp" android:layout_height="1dp"/>
    <LinearLayout android:id="@+id/settingsPanel" android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="14dp">
     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="AJUSTES DEL REGATISTA" android:textColor="#07558A" android:textStyle="bold"/>
     <EditText android:id="@+id/sailNumber" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Número de vela"/>
@@ -31,9 +42,11 @@
    </LinearLayout>
   </LinearLayout>
  </ScrollView>
- <LinearLayout android:layout_width="match_parent" android:layout_height="66dp" android:orientation="horizontal" android:background="@drawable/card_white" android:gravity="center">
-  <Button android:id="@+id/homeButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:text="⌂\nSeguimiento" android:textSize="11sp"/>
-  <Button android:id="@+id/mapButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:text="⌖\nMapa" android:textSize="11sp"/>
-  <Button android:id="@+id/settingsButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:text="⚙\nMás" android:textSize="11sp"/>
+ <LinearLayout android:layout_width="match_parent" android:layout_height="68dp" android:orientation="horizontal" android:background="#FFFFFF">
+  <TextView android:id="@+id/homeButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="center" android:text="⌂&#10;Seguimiento" android:textColor="#1689E8"/>
+  <TextView android:id="@+id/racesButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="center" android:text="⚑&#10;Regatas"/>
+  <TextView android:id="@+id/mapButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="center" android:text="◈&#10;Mapa"/>
+  <TextView android:id="@+id/historyButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="center" android:text="◴&#10;Historial"/>
+  <TextView android:id="@+id/settingsButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="center" android:text="•••&#10;Más"/>
  </LinearLayout>
 </LinearLayout>
