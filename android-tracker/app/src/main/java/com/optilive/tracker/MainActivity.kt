@@ -17,6 +17,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var telemetry: TextView
     private lateinit var sailDisplay: TextView
     private lateinit var sailorDisplay: TextView
+    private lateinit var speedDisplay: TextView
+    private lateinit var distanceDisplay: TextView
 
     private val locationReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -27,7 +29,9 @@ class MainActivity : AppCompatActivity() {
             val speed = intent?.getFloatExtra("speed", 0f) ?: 0f
             val distance = intent?.getFloatExtra("distance", 0f) ?: 0f
             coordinates.text = "Lat: %.6f\nLon: %.6f\nPrecisión: %.1f m".format(lat, lon, acc)
-            telemetry.text = "VELOCIDAD  %.1f kn     DISTANCIA  %.0f m".format(speed, distance)
+            telemetry.text = ""
+            speedDisplay.text = "%.1f kn\nVELOCIDAD".format(speed)
+            distanceDisplay.text = "%.0f m\nDISTANCIA".format(distance)
         }
     }
 
@@ -55,6 +59,8 @@ class MainActivity : AppCompatActivity() {
         telemetry = findViewById(R.id.telemetry)
         sailDisplay = findViewById(R.id.sailDisplay)
         sailorDisplay = findViewById(R.id.sailorDisplay)
+        speedDisplay = findViewById(R.id.speedDisplay)
+        distanceDisplay = findViewById(R.id.distanceDisplay)
 
         val sail = findViewById<EditText>(R.id.sailNumber)
         val first = findViewById<EditText>(R.id.firstName)
@@ -82,6 +88,12 @@ class MainActivity : AppCompatActivity() {
             refreshProfile()
             Toast.makeText(this, "Configuración guardada", Toast.LENGTH_SHORT).show()
         }
+        findViewById<Button>(R.id.mapButton).setOnClickListener { startActivity(Intent(this, MapActivity::class.java)) }
+        findViewById<Button>(R.id.settingsButton).setOnClickListener {
+            val p = findViewById<android.view.View>(R.id.settingsPanel)
+            p.visibility = if (p.visibility == android.view.View.VISIBLE) android.view.View.GONE else android.view.View.VISIBLE
+        }
+        findViewById<Button>(R.id.homeButton).setOnClickListener { findViewById<android.view.View>(R.id.settingsPanel).visibility = android.view.View.GONE }
         findViewById<Button>(R.id.startTracking).setOnClickListener { requestAndStart() }
         findViewById<Button>(R.id.stopTracking).setOnClickListener {
             stopService(Intent(this, LocationService::class.java))
