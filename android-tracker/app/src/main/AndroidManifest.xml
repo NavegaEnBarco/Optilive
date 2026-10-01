@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-    <application android:theme="@style/Theme.OptiLive" android:label="OptiLive">
+    <application android:theme="@style/Theme.OptiLive" android:label="OptiLive" android:usesCleartextTraffic="true">
         <service
             android:name=".LocationService"
             android:foregroundServiceType="location"
