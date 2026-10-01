@@ -64,7 +64,7 @@
     <EditText android:id="@+id/sailNumber" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Número de vela"/>
     <EditText android:id="@+id/firstName" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Nombre"/>
     <EditText android:id="@+id/lastName" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Apellidos"/>
-    <EditText android:id="@+id/category" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Categoría"/>
+    <Spinner android:id="@+id/category" android:layout_width="match_parent" android:layout_height="52dp" android:spinnerMode="dropdown"/>
     <EditText android:id="@+id/club" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Club"/>
     <EditText android:id="@+id/serverUrl" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Servidor OptiLive"/>
     <Button android:id="@+id/saveButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="GUARDAR AJUSTES"/>
