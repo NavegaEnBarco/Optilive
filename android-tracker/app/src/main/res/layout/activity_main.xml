@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="#F7F9FC">
- <LinearLayout android:layout_width="match_parent" android:layout_height="72dp" android:orientation="horizontal" android:gravity="center_vertical" android:background="#FFFFFF" android:paddingHorizontal="16dp">
-  <ImageView android:layout_width="54dp" android:layout_height="54dp" android:src="@drawable/ic_optilive_sail"/>
+ <LinearLayout android:layout_width="match_parent" android:layout_height="68dp" android:orientation="horizontal" android:gravity="center_vertical" android:background="#FFFFFF" android:paddingHorizontal="16dp">
+  <ImageView android:layout_width="48dp" android:layout_height="48dp" android:src="@drawable/ic_optilive_sail"/>
   <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:paddingLeft="8dp">
-   <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="OptiLive" android:textColor="#07558A" android:textSize="27sp" android:textStyle="bold"/>
+   <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="OptiLive" android:textColor="#07558A" android:textSize="25sp" android:textStyle="bold"/>
    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="TRACKING OPTIMIST" android:textColor="#6B7B8C" android:textSize="12sp" android:letterSpacing=".08"/>
   </LinearLayout>
   <ImageView android:id="@+id/topSettings" android:layout_width="42dp" android:layout_height="42dp" android:padding="8dp" android:src="@drawable/ic_settings_blue"/>
  </LinearLayout>
  <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true">
   <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="14dp" android:paddingTop="8dp" android:paddingBottom="8dp">
-   <LinearLayout android:layout_width="match_parent" android:layout_height="92dp" android:orientation="horizontal" android:gravity="center_vertical" android:background="@drawable/card_white" android:padding="12dp">
+   <LinearLayout android:layout_width="match_parent" android:layout_height="86dp" android:orientation="horizontal" android:gravity="center_vertical" android:background="@drawable/card_white" android:padding="12dp">
     <ImageView android:layout_width="54dp" android:layout_height="54dp" android:src="@drawable/ic_optilive_sail_outline" android:background="@drawable/circle_pale_blue" android:padding="10dp"/>
     <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:paddingLeft="12dp">
      <TextView android:id="@+id/sailDisplay" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="🇪🇸  ESP ----" android:textColor="#101820" android:textSize="21sp" android:textStyle="bold"/>
@@ -18,12 +18,12 @@
     </LinearLayout>
     <TextView android:layout_width="28dp" android:layout_height="match_parent" android:gravity="center" android:text="›" android:textColor="#617286" android:textSize="30sp"/>
    </LinearLayout>
-   <LinearLayout android:layout_width="match_parent" android:layout_height="66dp" android:orientation="horizontal" android:gravity="center_vertical" android:background="@drawable/card_green" android:paddingHorizontal="14dp" android:layout_marginTop="8dp">
+   <LinearLayout android:layout_width="match_parent" android:layout_height="62dp" android:orientation="horizontal" android:gravity="center_vertical" android:background="@drawable/card_green" android:paddingHorizontal="14dp" android:layout_marginTop="8dp">
     <View android:layout_width="18dp" android:layout_height="18dp" android:background="@drawable/circle_green"/>
     <TextView android:id="@+id/status" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:paddingLeft="10dp" android:text="GPS DETENIDO&#10;Esperando señal" android:textColor="#087F5B" android:textSize="14sp" android:textStyle="bold"/>
     <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@drawable/ic_signal"/>
    </LinearLayout>
-   <LinearLayout android:layout_width="match_parent" android:layout_height="82dp" android:orientation="horizontal" android:layout_marginTop="8dp">
+   <LinearLayout android:layout_width="match_parent" android:layout_height="76dp" android:orientation="horizontal" android:layout_marginTop="8dp">
     <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:orientation="horizontal" android:gravity="center" android:background="@drawable/card_white">
      <ImageView android:layout_width="38dp" android:layout_height="38dp" android:src="@drawable/ic_speed"/>
      <TextView android:id="@+id/speedDisplay" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="10dp" android:text="0,0&#10;nudos&#10;Velocidad" android:textColor="#102A43" android:textSize="14sp" android:textStyle="bold"/>
@@ -39,7 +39,7 @@
     <TextView android:id="@+id/serverStatus" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:paddingLeft="10dp" android:text="Servidor: configura la dirección" android:textColor="#22384D" android:textSize="14sp"/>
     <TextView android:layout_width="24dp" android:layout_height="match_parent" android:gravity="center" android:text="›" android:textSize="26sp" android:textColor="#617286"/>
    </LinearLayout>
-   <LinearLayout android:layout_width="match_parent" android:layout_height="68dp" android:orientation="horizontal" android:layout_marginTop="8dp">
+   <LinearLayout android:layout_width="match_parent" android:layout_height="62dp" android:orientation="horizontal" android:layout_marginTop="8dp">
     <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:orientation="horizontal" android:gravity="center" android:background="@drawable/card_white">
      <ImageView android:layout_width="34dp" android:layout_height="34dp" android:src="@drawable/ic_upload"/>
      <TextView android:id="@+id/sentDisplay" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="9dp" android:text="0&#10;posiciones enviadas" android:textColor="#334E68" android:textSize="12sp"/>
@@ -71,7 +71,7 @@
    </LinearLayout>
   </LinearLayout>
  </ScrollView>
- <LinearLayout android:layout_width="match_parent" android:layout_height="58dp" android:orientation="horizontal" android:background="#FFFFFF">
+ <LinearLayout android:layout_width="match_parent" android:layout_height="64dp" android:orientation="horizontal" android:background="#FFFFFF">
   <TextView android:id="@+id/homeButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="center" android:text="⌂&#10;Seguimiento" android:textColor="#1689E8" android:textSize="10sp"/>
   <TextView android:id="@+id/racesButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="center" android:text="⚑&#10;Regatas" android:textColor="#617286" android:textSize="10sp"/>
   <TextView android:id="@+id/mapButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:gravity="center" android:text="◈&#10;Mapa" android:textColor="#617286" android:textSize="10sp"/>
