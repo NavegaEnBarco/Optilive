@@ -1,21 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true">
- <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp">
-  <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="OptiLive" android:textSize="32sp" android:textStyle="bold"/>
-  <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Perfil del regatista" android:textSize="18sp" android:layout_marginBottom="12dp"/>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="#F4F7FA" android:fillViewport="true">
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+ <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="#07558A" android:padding="22dp">
+  <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="OptiLive" android:textColor="#FFFFFF" android:textSize="34sp" android:textStyle="bold"/>
+  <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="TRACKING OPTIMIST · PRO" android:textColor="#BDE8FF" android:textSize="13sp"/>
+ </LinearLayout>
+ <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
+  <TextView android:id="@+id/sailDisplay" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="ESP ----" android:textColor="#102A43" android:textSize="27sp" android:textStyle="bold"/>
+  <TextView android:id="@+id/sailorDisplay" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Regatista · Categoría · Club" android:textColor="#627D98" android:textSize="16sp" android:layout_marginBottom="18dp"/>
+  <TextView android:id="@+id/status" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="#E5F8EF" android:padding="16dp" android:text="GPS DETENIDO" android:textColor="#087F5B" android:textSize="19sp" android:textStyle="bold"/>
+  <TextView android:id="@+id/telemetry" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="#FFFFFF" android:padding="18dp" android:text="VELOCIDAD  0.0 kn     DISTANCIA  0 m" android:textColor="#102A43" android:textSize="18sp" android:textStyle="bold" android:layout_marginTop="12dp"/>
+  <TextView android:id="@+id/serverStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="#FFFFFF" android:padding="16dp" android:text="Servidor: esperando datos" android:textColor="#334E68" android:textSize="16sp" android:layout_marginTop="8dp"/>
+  <Button android:id="@+id/startTracking" android:layout_width="match_parent" android:layout_height="64dp" android:text="▶  INICIAR SEGUIMIENTO" android:textSize="17sp" android:layout_marginTop="18dp"/>
+  <Button android:id="@+id/stopTracking" android:layout_width="match_parent" android:layout_height="58dp" android:text="■  FINALIZAR SEGUIMIENTO" android:textSize="16sp"/>
+  <TextView android:id="@+id/coordinates" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="#FFFFFF" android:padding="16dp" android:text="Esperando posición..." android:textColor="#627D98" android:textSize="14sp" android:layout_marginTop="10dp"/>
+  <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="CONFIGURACIÓN" android:textColor="#829AB1" android:textStyle="bold" android:layout_marginTop="24dp" android:layout_marginBottom="6dp"/>
   <EditText android:id="@+id/sailNumber" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Número de vela"/>
   <EditText android:id="@+id/firstName" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Nombre"/>
   <EditText android:id="@+id/lastName" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Apellidos"/>
   <EditText android:id="@+id/category" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Categoría"/>
   <EditText android:id="@+id/club" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Club"/>
-  <EditText android:id="@+id/serverUrl" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Servidor (ej. http://192.168.1.50:3000)"/>
-  <Button android:id="@+id/saveButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Guardar perfil" android:layout_marginTop="12dp"/>
-  <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Seguimiento GPS" android:textSize="20sp" android:textStyle="bold" android:layout_marginTop="28dp"/>
-  <Button android:id="@+id/startTracking" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="INICIAR SEGUIMIENTO"/>
-  <Button android:id="@+id/stopTracking" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="DETENER SEGUIMIENTO"/>
-  <TextView android:id="@+id/status" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="GPS detenido" android:textSize="16sp" android:layout_marginTop="16dp"/>
-  <TextView android:id="@+id/coordinates" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Esperando posición..." android:textSize="15sp" android:layout_marginTop="8dp"/>
-   <TextView android:id="@+id/serverStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Servidor: esperando datos" android:textSize="16sp" android:layout_marginTop="12dp"/>
-  <TextView android:id="@+id/telemetry" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Velocidad: 0.0 kn · Distancia: 0 m" android:textSize="15sp" android:layout_marginTop="8dp"/>
+  <EditText android:id="@+id/serverUrl" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Servidor OptiLive"/>
+  <Button android:id="@+id/saveButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="GUARDAR CONFIGURACIÓN" android:layout_marginTop="8dp"/>
+  <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Seguimiento     Regatas     Mapa     Historial     Más" android:textColor="#07558A" android:gravity="center" android:textStyle="bold" android:padding="20dp" android:layout_marginTop="18dp"/>
  </LinearLayout>
-</ScrollView>
+</LinearLayout></ScrollView>
