@@ -94,7 +94,13 @@ class MainActivity : AppCompatActivity() {
         club.setText(prefs.getString("club", ""))
         serverUrl.setText(prefs.getString("server_url", ""))
         fun refreshProfile() {
-            sailDisplay.text = "🇪🇸  " + (sail.text.toString().ifBlank { "ESP ----" }).uppercase()
+            val rawSail = sail.text.toString().trim().uppercase()
+            val normalizedSail = when {
+                rawSail.isBlank() -> "ESP ----"
+                rawSail.startsWith("ESP") -> rawSail
+                else -> "ESP $rawSail"
+            }
+            sailDisplay.text = "🇪🇸  $normalizedSail"
             val fullName = "${first.text} ${last.text}".trim().ifBlank { "Regatista" }
             val meta = listOf(category.text.toString(), club.text.toString()).filter { it.isNotBlank() }.joinToString("   |   ")
             sailorDisplay.text = if (meta.isBlank()) fullName else "$fullName\n$meta"
