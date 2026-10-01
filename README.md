@@ -25,14 +25,15 @@ MVP para seguimiento GPS de regatistas Optimist mediante teléfonos Android.
 - `docs/`: arquitectura.
 - `.github/workflows/android-apk.yml`: compilación automática del APK.
 
-## APK mediante GitHub
-Consulta `GITHUB-UPLOAD.md`.
+## Estado
+- Conexión de escritura ChatGPT ↔ GitHub verificada.
 
 ## Próximos hitos
-1. Sustituir la cola básica por Room/SQLite.
-2. Configuración segura del servidor y autenticación.
-3. QR móvil-barco/regatista.
-4. Gestión de regatas y sesiones.
-5. Roles para organización, entrenadores y familias.
-6. Reproducción histórica de recorridos.
-7. Controles de privacidad y consentimiento para menores.
+1. Generar y validar el primer APK.
+2. Sustituir la cola básica por Room/SQLite.
+3. Configuración segura del servidor y autenticación.
+4. QR móvil-barco/regatista.
+5. Gestión de regatas y sesiones.
+6. Roles para organización, entrenadores y familias.
+7. Reproducción histórica de recorridos.
+8. Controles de privacidad y consentimiento para menores.
