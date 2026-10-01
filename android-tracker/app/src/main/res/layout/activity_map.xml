@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="#F4F7FA">
+ <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="#07558A" android:padding="18dp">
+  <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="OptiLive" android:textColor="#FFFFFF" android:textSize="28sp" android:textStyle="bold"/>
+  <TextView android:id="@+id/mapTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="MAPA EN DIRECTO" android:textColor="#BDE8FF" android:textSize="13sp"/>
+ </LinearLayout>
+ <WebView android:id="@+id/webMap" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"/>
+ <Button android:id="@+id/backTracking" android:layout_width="match_parent" android:layout_height="58dp" android:text="← VOLVER A SEGUIMIENTO"/>
+</LinearLayout>
