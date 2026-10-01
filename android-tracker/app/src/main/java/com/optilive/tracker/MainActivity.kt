@@ -83,14 +83,17 @@ class MainActivity : AppCompatActivity() {
         val sail = findViewById<EditText>(R.id.sailNumber)
         val first = findViewById<EditText>(R.id.firstName)
         val last = findViewById<EditText>(R.id.lastName)
-        val category = findViewById<EditText>(R.id.category)
+        val category = findViewById<Spinner>(R.id.category)
+        val categoryOptions = arrayOf("Sub11", "Sub13", "Sub15")
+        category.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categoryOptions)
         val club = findViewById<EditText>(R.id.club)
         val serverUrl = findViewById<EditText>(R.id.serverUrl)
         val prefs = getSharedPreferences("optilive_profile", MODE_PRIVATE)
         sail.setText(prefs.getString("sail", ""))
         first.setText(prefs.getString("first", ""))
         last.setText(prefs.getString("last", ""))
-        category.setText(prefs.getString("category", ""))
+        val savedCategory = prefs.getString("category", "Sub11") ?: "Sub11"
+        category.setSelection(categoryOptions.indexOf(savedCategory).takeIf { it >= 0 } ?: 0)
         club.setText(prefs.getString("club", ""))
         serverUrl.setText(prefs.getString("server_url", ""))
         fun refreshProfile() {
@@ -102,14 +105,14 @@ class MainActivity : AppCompatActivity() {
             }
             sailDisplay.text = "🇪🇸  $normalizedSail"
             val fullName = "${first.text} ${last.text}".trim().ifBlank { "Regatista" }
-            val meta = listOf(category.text.toString(), club.text.toString()).filter { it.isNotBlank() }.joinToString("   |   ")
+            val meta = listOf(category.selectedItem?.toString().orEmpty(), club.text.toString()).filter { it.isNotBlank() }.joinToString("   |   ")
             sailorDisplay.text = if (meta.isBlank()) fullName else "$fullName\n$meta"
         }
         refreshProfile()
 
         findViewById<Button>(R.id.saveButton).setOnClickListener {
             prefs.edit().putString("sail", sail.text.toString().trim()).putString("first", first.text.toString().trim())
-                .putString("last", last.text.toString().trim()).putString("category", category.text.toString().trim())
+                .putString("last", last.text.toString().trim()).putString("category", category.selectedItem?.toString().orEmpty())
                 .putString("club", club.text.toString().trim()).putString("server_url", serverUrl.text.toString().trim()).apply()
             refreshProfile()
             Toast.makeText(this, "Configuración guardada", Toast.LENGTH_SHORT).show()
