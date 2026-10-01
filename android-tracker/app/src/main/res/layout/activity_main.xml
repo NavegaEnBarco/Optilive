@@ -21,7 +21,7 @@
    <LinearLayout android:layout_width="match_parent" android:layout_height="62dp" android:orientation="horizontal" android:gravity="center_vertical" android:background="@drawable/card_green" android:paddingHorizontal="14dp" android:layout_marginTop="8dp">
     <View android:layout_width="18dp" android:layout_height="18dp" android:background="@drawable/circle_green"/>
     <TextView android:id="@+id/status" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:paddingLeft="10dp" android:text="GPS DETENIDO&#10;Esperando señal" android:textColor="#087F5B" android:textSize="14sp" android:textStyle="bold"/>
-    <ImageView android:layout_width="28dp" android:layout_height="28dp" android:src="@drawable/ic_signal"/>
+    <LinearLayout android:layout_width="wrap_content" android:layout_height="match_parent" android:orientation="horizontal" android:gravity="center"><ImageView android:layout_width="30dp" android:layout_height="30dp" android:src="@drawable/ic_satellite"/><TextView android:id="@+id/satelliteDisplay" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="6dp" android:text="0 sat." android:textColor="#087F5B" android:textSize="14sp" android:textStyle="bold"/></LinearLayout>
    </LinearLayout>
    <LinearLayout android:layout_width="match_parent" android:layout_height="76dp" android:orientation="horizontal" android:layout_marginTop="8dp">
     <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:orientation="horizontal" android:gravity="center" android:background="@drawable/card_white">
