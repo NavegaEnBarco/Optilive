@@ -13,6 +13,8 @@ import androidx.core.content.ContextCompat
 class MainActivity : AppCompatActivity() {
     private lateinit var status: TextView
     private lateinit var coordinates: TextView
+    private lateinit var serverStatus: TextView
+    private lateinit var telemetry: TextView
 
     private val locationReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -20,7 +22,20 @@ class MainActivity : AppCompatActivity() {
             val lon = intent?.getDoubleExtra("lon", 0.0) ?: 0.0
             val acc = intent?.getFloatExtra("accuracy", 0f) ?: 0f
             status.text = "GPS ACTIVO"
+            val speed = intent?.getFloatExtra("speed", 0f) ?: 0f
+            val distance = intent?.getFloatExtra("distance", 0f) ?: 0f
             coordinates.text = "Lat: %.6f\nLon: %.6f\nPrecisión: %.1f m".format(lat, lon, acc)
+            telemetry.text = "Velocidad: %.1f kn · Distancia: %.0f m".format(speed, distance)
+        }
+    }
+
+    private val serverReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val connected = intent?.getBooleanExtra("connected", false) ?: false
+            val sent = intent?.getIntExtra("sent", 0) ?: 0
+            val pending = intent?.getIntExtra("pending", 0) ?: 0
+            serverStatus.text = if (connected) "🟢 Servidor conectado · Enviadas: $sent · Pendientes: $pending"
+                else "🔴 Sin conexión · Guardadas: $pending"
         }
     }
 
@@ -34,6 +49,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         status = findViewById(R.id.status)
         coordinates = findViewById(R.id.coordinates)
+        serverStatus = findViewById(R.id.serverStatus)
+        telemetry = findViewById(R.id.telemetry)
 
         val sail = findViewById<EditText>(R.id.sailNumber)
         val first = findViewById<EditText>(R.id.firstName)
@@ -65,10 +82,12 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         ContextCompat.registerReceiver(this, locationReceiver, IntentFilter(LocationService.ACTION_LOCATION), ContextCompat.RECEIVER_NOT_EXPORTED)
+        ContextCompat.registerReceiver(this, serverReceiver, IntentFilter(LocationService.ACTION_SERVER), ContextCompat.RECEIVER_NOT_EXPORTED)
     }
 
     override fun onStop() {
         unregisterReceiver(locationReceiver)
+        unregisterReceiver(serverReceiver)
         super.onStop()
     }
 
