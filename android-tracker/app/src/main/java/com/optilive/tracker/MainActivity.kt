@@ -50,7 +50,8 @@ class MainActivity : AppCompatActivity() {
             val connected = intent?.getBooleanExtra("connected", false) ?: false
             val sent = intent?.getIntExtra("sent", 0) ?: 0
             val pending = intent?.getIntExtra("pending", 0) ?: 0
-            serverStatus.text = if (connected) "●  Servidor conectado" else "●  Servidor sin conexión"
+            val serverUrl = getSharedPreferences("optilive_profile", MODE_PRIVATE).getString("server_url", "") ?: ""
+            serverStatus.text = if (connected) "●  Servidor conectado\n$serverUrl" else if (serverUrl.isBlank()) "Servidor: configura la dirección del servidor" else "●  Servidor sin conexión\n$serverUrl"
             sentDisplay.text = "$sent\nposiciones enviadas"
             pendingDisplay.text = "$pending\npendientes (offline)"
         }
@@ -94,7 +95,9 @@ class MainActivity : AppCompatActivity() {
         serverUrl.setText(prefs.getString("server_url", ""))
         fun refreshProfile() {
             sailDisplay.text = "🇪🇸  " + (sail.text.toString().ifBlank { "ESP ----" }).uppercase()
-            sailorDisplay.text = "${first.text} ${last.text} · ${category.text} · ${club.text}"
+            val fullName = "${first.text} ${last.text}".trim().ifBlank { "Regatista" }
+            val meta = listOf(category.text.toString(), club.text.toString()).filter { it.isNotBlank() }.joinToString("   |   ")
+            sailorDisplay.text = if (meta.isBlank()) fullName else "$fullName\n$meta"
         }
         refreshProfile()
 
@@ -117,7 +120,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.startTracking).setOnClickListener { requestAndStart() }
         findViewById<android.view.View>(R.id.stopTracking).setOnClickListener {
             stopService(Intent(this, LocationService::class.java))
-            status.text = "GPS detenido"
+            status.text = "●  GPS DETENIDO\nSeguimiento parado"
         }
     }
 
@@ -141,6 +144,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun startGps() {
         ContextCompat.startForegroundService(this, Intent(this, LocationService::class.java))
-        status.text = "Iniciando GPS..."
+        status.text = "●  GPS INICIANDO\nBuscando posición..."
     }
 }
