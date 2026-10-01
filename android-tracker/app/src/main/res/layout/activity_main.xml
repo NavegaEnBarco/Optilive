@@ -15,5 +15,7 @@
   <Button android:id="@+id/stopTracking" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="DETENER SEGUIMIENTO"/>
   <TextView android:id="@+id/status" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="GPS detenido" android:textSize="16sp" android:layout_marginTop="16dp"/>
   <TextView android:id="@+id/coordinates" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Esperando posición..." android:textSize="15sp" android:layout_marginTop="8dp"/>
+   <TextView android:id="@+id/serverStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Servidor: esperando datos" android:textSize="16sp" android:layout_marginTop="12dp"/>
+  <TextView android:id="@+id/telemetry" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Velocidad: 0.0 kn · Distancia: 0 m" android:textSize="15sp" android:layout_marginTop="8dp"/>
  </LinearLayout>
 </ScrollView>
