@@ -8,6 +8,7 @@
   <EditText android:id="@+id/lastName" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Apellidos"/>
   <EditText android:id="@+id/category" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Categoría"/>
   <EditText android:id="@+id/club" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Club"/>
+  <EditText android:id="@+id/serverUrl" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Servidor (ej. http://192.168.1.50:3000)"/>
   <Button android:id="@+id/saveButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Guardar perfil" android:layout_marginTop="12dp"/>
   <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Seguimiento GPS" android:textSize="20sp" android:textStyle="bold" android:layout_marginTop="28dp"/>
   <Button android:id="@+id/startTracking" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="INICIAR SEGUIMIENTO"/>
