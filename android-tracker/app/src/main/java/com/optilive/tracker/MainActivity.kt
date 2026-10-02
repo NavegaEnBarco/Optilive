@@ -53,8 +53,8 @@ class MainActivity : AppCompatActivity() {
             val connected = intent?.getBooleanExtra("connected", false) ?: false
             val sent = intent?.getIntExtra("sent", 0) ?: 0
             val pending = intent?.getIntExtra("pending", 0) ?: 0
-            val serverUrl = getSharedPreferences("optilive_profile", MODE_PRIVATE).getString("server_url", "") ?: ""
-            serverStatus.text = if (connected) "●  Servidor conectado\n$serverUrl" else if (serverUrl.isBlank()) "Servidor: configura la dirección del servidor" else "●  Servidor sin conexión\n$serverUrl"
+            val serverUrl = getSharedPreferences("optilive_profile", MODE_PRIVATE).getString("server_url", DEFAULT_SERVER) ?: DEFAULT_SERVER
+            serverStatus.text = if (connected) "●  Servidor conectado\n$serverUrl" else "●  Servidor sin conexión\n$serverUrl"
             sentDisplay.text = "$sent\nposiciones enviadas"
             pendingDisplay.text = "$pending\npendientes (offline)"
         }
@@ -99,7 +99,7 @@ class MainActivity : AppCompatActivity() {
         val savedCategory = prefs.getString("category", "Sub11") ?: "Sub11"
         category.setSelection(categoryOptions.indexOf(savedCategory).takeIf { it >= 0 } ?: 0)
         club.setText(prefs.getString("club", ""))
-        serverUrl.setText(prefs.getString("server_url", ""))
+        if ((prefs.getString("server_url", "") ?: "").isBlank()) prefs.edit().putString("server_url", DEFAULT_SERVER).apply()\n        serverUrl.setText(prefs.getString("server_url", DEFAULT_SERVER))
         fun refreshProfile() {
             val rawSail = sail.text.toString().trim().uppercase()
             val normalizedSail = when {
@@ -117,7 +117,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.saveButton).setOnClickListener {
             prefs.edit().putString("sail", sail.text.toString().trim()).putString("first", first.text.toString().trim())
                 .putString("last", last.text.toString().trim()).putString("category", category.selectedItem?.toString().orEmpty())
-                .putString("club", club.text.toString().trim()).putString("server_url", serverUrl.text.toString().trim()).apply()
+                .putString("club", club.text.toString().trim()).putString("server_url", serverUrl.text.toString().trim().ifBlank { DEFAULT_SERVER }).apply()
             refreshProfile()
             Toast.makeText(this, "Configuración guardada", Toast.LENGTH_SHORT).show()
         }
@@ -155,7 +155,7 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= 33) requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 20)
     }
 
-    private fun startGps() {
+    companion object { const val DEFAULT_SERVER = "https://optilive-node-production.up.railway.app" }\n\n    private fun startGps() {
         ContextCompat.startForegroundService(this, Intent(this, LocationService::class.java))
         status.text = "●  GPS INICIANDO\nBuscando posición..."
     }
