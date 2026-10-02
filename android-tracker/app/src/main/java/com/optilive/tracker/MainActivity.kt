@@ -99,7 +99,10 @@ class MainActivity : AppCompatActivity() {
         val savedCategory = prefs.getString("category", "Sub11") ?: "Sub11"
         category.setSelection(categoryOptions.indexOf(savedCategory).takeIf { it >= 0 } ?: 0)
         club.setText(prefs.getString("club", ""))
-        if ((prefs.getString("server_url", "") ?: "").isBlank()) prefs.edit().putString("server_url", DEFAULT_SERVER).apply()\n        serverUrl.setText(prefs.getString("server_url", DEFAULT_SERVER))
+        if ((prefs.getString("server_url", "") ?: "").isBlank()) {
+            prefs.edit().putString("server_url", DEFAULT_SERVER).apply()
+        }
+        serverUrl.setText(prefs.getString("server_url", DEFAULT_SERVER))
         fun refreshProfile() {
             val rawSail = sail.text.toString().trim().uppercase()
             val normalizedSail = when {
@@ -155,7 +158,11 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= 33) requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 20)
     }
 
-    companion object { const val DEFAULT_SERVER = "https://optilive-node-production.up.railway.app" }\n\n    private fun startGps() {
+    companion object {
+        const val DEFAULT_SERVER = "https://optilive-node-production.up.railway.app"
+    }
+
+    private fun startGps() {
         ContextCompat.startForegroundService(this, Intent(this, LocationService::class.java))
         status.text = "●  GPS INICIANDO\nBuscando posición..."
     }
