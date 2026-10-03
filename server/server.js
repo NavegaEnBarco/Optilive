@@ -1,7 +1,7 @@
 const express=require("express"),http=require("http"),WebSocket=require("ws"),path=require("path");
 const app=express(),server=http.createServer(app),wss=new WebSocket.Server({server});
 const boats=new Map(),tracks=new Map();
-app.use(express.json({limit:"256kb"}));app.use(express.static(path.join(__dirname,"public")));
+app.use(express.json({limit:"256kb"}));app.use("/vendor/leaflet",express.static(path.join(__dirname,"node_modules","leaflet","dist")));app.use(express.static(path.join(__dirname,"public")));
 app.get("/api/health",(_q,r)=>r.json({ok:true,boats:boats.size,time:Date.now()}));
 app.get("/api/boats",(_q,r)=>r.json([...boats.values()]));
 app.get("/api/tracks",(_q,r)=>r.json(Object.fromEntries(tracks)));
