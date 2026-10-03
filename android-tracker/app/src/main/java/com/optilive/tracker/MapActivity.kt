@@ -8,6 +8,10 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceError
+import android.webkit.WebChromeClient
+import android.webkit.ConsoleMessage
+import android.graphics.Bitmap
+import android.view.View
 import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -27,7 +31,21 @@ class MapActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.liveStatus).text=if(u.isBlank())"● Sin conexión" else "● En directo"
         val w=findViewById<WebView>(R.id.webMap)
         w.settings.javaScriptEnabled=true
-        w.webViewClient=object:WebViewClient(){override fun onReceivedError(view:WebView?,request:WebResourceRequest?,error:WebResourceError?){Log.e("OptiLiveMap","Web error "+error?.errorCode+": "+error?.description+" url="+request?.url)}}
+        val mapError=findViewById<TextView>(R.id.mapError)
+        w.webChromeClient=object:WebChromeClient(){override fun onConsoleMessage(cm:ConsoleMessage):Boolean{Log.e("OptiLiveMap","JS: "+cm.message()+" @"+cm.lineNumber());return true}}
+        w.webViewClient=object:WebViewClient(){
+            override fun onPageStarted(view:WebView?,url:String?,favicon:Bitmap?){mapError.visibility=View.GONE}
+            override fun onPageFinished(view:WebView?,url:String?){
+                view?.evaluateJavascript("(function(){return JSON.stringify({leaflet:typeof L!=='undefined',map:!!window.map,tiles:document.querySelectorAll('.leaflet-tile-loaded').length,url:location.href})})()"){v->
+                    Log.i("OptiLiveMap","CHECK "+v)
+                    if(v.contains("\\\"leaflet\\\":false")||v.contains("\\\"map\\\":false")){mapError.text="Mapa no iniciado · diagnóstico registrado";mapError.visibility=View.VISIBLE}
+                }
+            }
+            override fun onReceivedError(view:WebView?,request:WebResourceRequest?,error:WebResourceError?){
+                Log.e("OptiLiveMap","Web error "+error?.errorCode+": "+error?.description+" url="+request?.url)
+                if(request?.isForMainFrame==true){mapError.text="Error cargando servidor: "+error?.description;mapError.visibility=View.VISIBLE}
+            }
+        }
         w.settings.domStorageEnabled=true
         w.settings.mixedContentMode=WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         w.settings.cacheMode=WebSettings.LOAD_NO_CACHE
