@@ -5,6 +5,10 @@ import android.os.Handler
 import android.os.Looper
 import android.webkit.WebSettings
 import android.webkit.WebView
+import android.webkit.WebViewClient
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceError
+import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import org.json.JSONObject
@@ -23,6 +27,7 @@ class MapActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.liveStatus).text=if(u.isBlank())"● Sin conexión" else "● En directo"
         val w=findViewById<WebView>(R.id.webMap)
         w.settings.javaScriptEnabled=true
+        w.webViewClient=object:WebViewClient(){override fun onReceivedError(view:WebView?,request:WebResourceRequest?,error:WebResourceError?){Log.e("OptiLiveMap","Web error "+error?.errorCode+": "+error?.description+" url="+request?.url)}}
         w.settings.domStorageEnabled=true
         w.settings.mixedContentMode=WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         w.settings.cacheMode=WebSettings.LOAD_NO_CACHE
