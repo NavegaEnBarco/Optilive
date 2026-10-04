@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="#F7F9FC" android:padding="20dp">
+ <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Administración de regata" android:textColor="#07558A" android:textSize="25sp" android:textStyle="bold" android:layout_marginTop="24dp"/>
+ <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Acceso exclusivo Organización / Administrador" android:textColor="#6B7B8C" android:textSize="14sp" android:layout_marginBottom="24dp"/>
+ <EditText android:id="@+id/adminUser" android:layout_width="match_parent" android:layout_height="56dp" android:hint="Nombre de usuario" android:inputType="text" android:background="@drawable/card_white" android:paddingHorizontal="16dp"/>
+ <EditText android:id="@+id/adminPass" android:layout_width="match_parent" android:layout_height="56dp" android:hint="Contraseña" android:inputType="textPassword" android:background="@drawable/card_white" android:paddingHorizontal="16dp" android:layout_marginTop="10dp"/>
+ <Button android:id="@+id/adminLogin" android:layout_width="match_parent" android:layout_height="56dp" android:text="INICIAR SESIÓN" android:textStyle="bold" android:layout_marginTop="18dp"/>
+ <TextView android:id="@+id/adminMessage" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="" android:textColor="#C62828" android:gravity="center" android:layout_marginTop="12dp"/>
+ <LinearLayout android:id="@+id/adminPanel" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone" android:layout_marginTop="20dp">
+  <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Panel administrador" android:textSize="20sp" android:textStyle="bold" android:textColor="#102A43"/>
+  <Button android:id="@+id/newRegatta" android:layout_width="match_parent" android:layout_height="54dp" android:text="+  NUEVA REGATA" android:layout_marginTop="12dp"/>
+  <Button android:id="@+id/manageRaces" android:layout_width="match_parent" android:layout_height="54dp" android:text="DÍAS Y PRUEBAS" android:layout_marginTop="8dp"/>
+  <Button android:id="@+id/manageCourse" android:layout_width="match_parent" android:layout_height="54dp" android:text="CAMPO DE REGATAS · BOYAS GPS" android:layout_marginTop="8dp"/>
+ </LinearLayout>
+</LinearLayout>
