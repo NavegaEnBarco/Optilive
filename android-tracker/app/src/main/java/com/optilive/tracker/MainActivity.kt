@@ -94,8 +94,17 @@ class MainActivity : AppCompatActivity() {
         findViewById<android.view.View>(R.id.profilePhoto).setOnClickListener { photoPicker.launch("image/*") }
         findViewById<android.view.View>(R.id.photoBadge).setOnClickListener { photoPicker.launch("image/*") }
         findViewById<android.view.View>(R.id.profileCover).setOnClickListener { photoPicker.launch("image/*") }
-        findViewById<android.view.View>(R.id.editProfile).setOnClickListener { findViewById<android.view.View>(R.id.settingsPanel).visibility = android.view.View.VISIBLE }
+        findViewById<android.view.View>(R.id.editProfile).setOnClickListener { showProfileEditor() }
 
+        fun showProfileEditor() {
+            val panel = findViewById<android.view.View>(R.id.settingsPanel)
+            panel.visibility = android.view.View.VISIBLE
+            panel.post {
+                val scroll = panel.parent?.parent as? android.widget.ScrollView
+                scroll?.smoothScrollTo(0, panel.top)
+                findViewById<EditText>(R.id.sailNumber).requestFocus()
+            }
+        }
         val sail = findViewById<EditText>(R.id.sailNumber)
         val first = findViewById<EditText>(R.id.firstName)
         val last = findViewById<EditText>(R.id.lastName)
@@ -145,7 +154,7 @@ class MainActivity : AppCompatActivity() {
             p.visibility = if (p.visibility == android.view.View.VISIBLE) android.view.View.GONE else android.view.View.VISIBLE
         }
         findViewById<android.view.View>(R.id.homeButton).apply { isClickable=true; isFocusable=true; setOnClickListener { startActivity(Intent(this@MainActivity, TrackingActivity::class.java)) } }
-        findViewById<android.view.View>(R.id.topSettings).setOnClickListener { findViewById<android.view.View>(R.id.settingsPanel).visibility = android.view.View.VISIBLE }
+        findViewById<android.view.View>(R.id.topSettings).setOnClickListener { showProfileEditor() }
         findViewById<android.view.View>(R.id.racesButton).apply { isClickable=true; isFocusable=true; setOnClickListener { startActivity(Intent(this@MainActivity, ClassificationActivity::class.java)) } }
         findViewById<android.view.View>(R.id.historyButton).setOnClickListener { Toast.makeText(this, "Historial: siguiente módulo", Toast.LENGTH_SHORT).show() }
         findViewById<Button>(R.id.startTracking).setOnClickListener { requestAndStart() }
