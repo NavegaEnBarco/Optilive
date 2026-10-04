@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.widget.*
+import android.net.Uri
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -26,6 +27,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var accuracyDisplay: TextView
     private lateinit var lastPosition: TextView
     private lateinit var satelliteDisplay: TextView
+    private lateinit var profilePhoto: ImageView
+    private val photoPicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? -> uri?.let { try { contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION) } catch (_: Exception) {}; getSharedPreferences("optilive_profile", MODE_PRIVATE).edit().putString("photo_uri", it.toString()).apply(); profilePhoto.setImageURI(it); profilePhoto.setPadding(0,0,0,0) } }
 
     private val locationReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -83,6 +86,11 @@ class MainActivity : AppCompatActivity() {
         accuracyDisplay = findViewById(R.id.accuracyDisplay)
         lastPosition = findViewById(R.id.lastPosition)
         satelliteDisplay = findViewById(R.id.satelliteDisplay)
+        profilePhoto = findViewById(R.id.profilePhoto)
+        getSharedPreferences("optilive_profile", MODE_PRIVATE).getString("photo_uri", null)?.let { try { profilePhoto.setImageURI(Uri.parse(it)); profilePhoto.setPadding(0,0,0,0) } catch (_: Exception) {} }
+        findViewById<android.view.View>(R.id.changePhoto).setOnClickListener { photoPicker.launch("image/*") }
+        findViewById<android.view.View>(R.id.profilePhoto).setOnClickListener { photoPicker.launch("image/*") }
+        findViewById<android.view.View>(R.id.editProfile).setOnClickListener { findViewById<android.view.View>(R.id.settingsPanel).visibility = android.view.View.VISIBLE }
 
         val sail = findViewById<EditText>(R.id.sailNumber)
         val first = findViewById<EditText>(R.id.firstName)
@@ -114,6 +122,9 @@ class MainActivity : AppCompatActivity() {
             val fullName = "${first.text} ${last.text}".trim().ifBlank { "Regatista" }
             val meta = listOf(category.selectedItem?.toString().orEmpty(), club.text.toString()).filter { it.isNotBlank() }.joinToString("   |   ")
             sailorDisplay.text = if (meta.isBlank()) fullName else "$fullName\n$meta"
+            findViewById<TextView>(R.id.profileBoat).text = "⛵  $normalizedSail"
+            findViewById<TextView>(R.id.profileCategory).text = "👥  ${category.selectedItem?.toString().orEmpty()}"
+            findViewById<TextView>(R.id.profileClub).text = "⚑  ${club.text.toString().ifBlank { "Club" }}"
         }
         refreshProfile()
 
