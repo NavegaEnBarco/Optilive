@@ -79,7 +79,6 @@
     <EditText android:id="@+id/club" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Club"/>
     <EditText android:id="@+id/serverUrl" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Servidor OptiLive"/>
     <Button android:id="@+id/saveButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="GUARDAR AJUSTES"/>
-    <Button android:id="@+id/adminButton" android:layout_width="match_parent" android:layout_height="52dp" android:layout_marginTop="12dp" android:text="⚙  ADMINISTRACIÓN DE REGATA" android:textStyle="bold" android:textColor="#FFFFFF" android:backgroundTint="#07558A"/>
    </LinearLayout>
   </LinearLayout>
  </ScrollView>
