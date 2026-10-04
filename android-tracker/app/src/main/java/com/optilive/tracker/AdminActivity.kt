@@ -16,7 +16,7 @@ class AdminActivity:AppCompatActivity(){
    msg.text="Conectando…";thread{try{val c=URL("$server/api/auth/login").openConnection() as HttpURLConnection;c.requestMethod="POST";c.setRequestProperty("Content-Type","application/json");c.doOutput=true;c.outputStream.use{it.write(JSONObject().put("username",user.text.toString()).put("password",pass.text.toString()).toString().toByteArray())};val ok=c.responseCode==200;val body=(if(ok)c.inputStream else c.errorStream).bufferedReader().readText();runOnUiThread{if(ok){val j=JSONObject(body);getSharedPreferences("optilive_admin",MODE_PRIVATE).edit().putString("token",j.getString("token")).putString("role",j.optString("role")).apply();pass.text.clear();msg.text="Administrador conectado";panel.visibility=View.VISIBLE}else msg.text="Usuario o contraseña incorrectos"}}catch(e:Exception){runOnUiThread{msg.text="No se puede conectar al servidor"}}}}
   findViewById<Button>(R.id.newRegatta).setOnClickListener{createRegatta()}
   findViewById<Button>(R.id.manageRaces).setOnClickListener{Toast.makeText(this,"Selecciona primero una regata",Toast.LENGTH_SHORT).show()}
-  findViewById<Button>(R.id.manageCourse).setOnClickListener{Toast.makeText(this,"Asignación GPS de boyas preparada en servidor",Toast.LENGTH_SHORT).show()}
+  findViewById<Button>(R.id.manageCourse).setOnClickListener{startActivity(android.content.Intent(this,CourseAdminActivity::class.java))}
  }
  private fun createRegatta(){val box=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL;setPadding(32,8,32,0)}
   fun field(h:String)=EditText(this).apply{hint=h;box.addView(this)}
