@@ -17,9 +17,14 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import org.json.JSONObject
 import java.net.URL
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class MapActivity : AppCompatActivity() {
     private val handler = Handler(Looper.getMainLooper())
+    private val openedAt = System.currentTimeMillis()
+    private val clockTick = object:Runnable{override fun run(){val now=System.currentTimeMillis();val local=SimpleDateFormat("HH:mm:ss",Locale.getDefault()).format(Date(now));val elapsed=(now-openedAt)/1000;val race=String.format(Locale.getDefault(),"%02d:%02d:%02d",elapsed/3600,(elapsed%3600)/60,elapsed%60);findViewById<TextView>(R.id.localTimeTop)?.text=local;findViewById<TextView>(R.id.localTimeBottom)?.text=local;findViewById<TextView>(R.id.raceTimeTop)?.text=race;findViewById<TextView>(R.id.raceTimeBottom)?.text=race;handler.postDelayed(this,1000)}}
     override fun onCreate(b: Bundle?) {
         super.onCreate(b)
         setContentView(R.layout.activity_map)
@@ -52,8 +57,10 @@ class MapActivity : AppCompatActivity() {
         w.clearCache(true)
         val mapUrl=(if(u.isBlank()) "https://optilive-node-production.up.railway.app" else u).trimEnd('/')+"/?v=20261004-boat-v2-"+System.currentTimeMillis()
         w.loadUrl(mapUrl)
+        handler.post(clockTick)
         loadWind()
         findViewById<TextView>(R.id.windInfo).setOnClickListener{startActivity(Intent(this,WeatherActivity::class.java))}
+        findViewById<TextView>(R.id.weatherNav).setOnClickListener{startActivity(Intent(this,WeatherActivity::class.java))}
         findViewById<TextView>(R.id.backTracking).setOnClickListener{finish()}
         findViewById<TextView>(R.id.zoomIn).setOnClickListener{w.evaluateJavascript("if(window.map)map.zoomIn()",null)}
         findViewById<TextView>(R.id.zoomOut).setOnClickListener{w.evaluateJavascript("if(window.map)map.zoomOut()",null)}
@@ -72,10 +79,10 @@ class MapActivity : AppCompatActivity() {
                     var best=boats.getJSONObject(0)
                     for(i in 1 until boats.length()){val x=boats.getJSONObject(i);if(x.optLong("timestamp")>best.optLong("timestamp"))best=x}
                     val lat=best.getDouble("lat");val lon=best.getDouble("lon")
-                    val j=JSONObject(URL("https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lon&current=wind_speed_10m,wind_direction_10m,wind_gusts_10m&wind_speed_unit=kn").readText()).getJSONObject("current")
-                    val sp=j.getDouble("wind_speed_10m");val deg=j.getDouble("wind_direction_10m");val gust=j.optDouble("wind_gusts_10m",sp)
+                    val j=JSONObject(URL("https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lon&current=temperature_2m,precipitation,wind_speed_10m,wind_direction_10m,wind_gusts_10m&wind_speed_unit=kn").readText()).getJSONObject("current")
+                    val sp=j.getDouble("wind_speed_10m");val deg=j.getDouble("wind_direction_10m");val gust=j.optDouble("wind_gusts_10m",sp);val temp=j.optDouble("temperature_2m",Double.NaN);val rain=j.optDouble("precipitation",0.0)
                     val dirs=arrayOf("N","NE","E","SE","S","SO","O","NO");val dir=dirs[((deg+22.5)/45).toInt()%8]
-                    runOnUiThread{out.text="💨 %.1f kn  → %s  · R %.1f".format(sp,dir,gust)}
+                    runOnUiThread{out.text="💨 Viento (modelo)  %.1f kn · %s %d°   |   Racha %.1f kn   |   %.0f°C · Lluvia %.1f mm".format(sp,dir,deg.toInt(),gust,temp,rain)}
                 }catch(e:Exception){runOnUiThread{out.text="💨 Viento no disponible"}}
             }.start()
         }
