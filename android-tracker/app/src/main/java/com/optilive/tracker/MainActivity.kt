@@ -29,7 +29,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var satelliteDisplay: TextView
     private lateinit var profilePhoto: ImageView
     private lateinit var profileCover: ImageView
-    private val photoPicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? -> uri?.let { try { contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION) } catch (_: Exception) {}; getSharedPreferences("optilive_profile", MODE_PRIVATE).edit().putString("photo_uri", it.toString()).apply(); profilePhoto.setImageURI(it); profilePhoto.setPadding(0,0,0,0); profileCover.setImageURI(it); profileCover.setPadding(0,0,0,0) } }
+    private val coverPicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? -> uri?.let { try { contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION) } catch (_: Exception) {}; getSharedPreferences("optilive_profile", MODE_PRIVATE).edit().putString("cover_uri", it.toString()).apply(); profileCover.setImageURI(it); profileCover.setPadding(0,0,0,0) } }
+    private val avatarPicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? -> uri?.let { try { contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION) } catch (_: Exception) {}; getSharedPreferences("optilive_profile", MODE_PRIVATE).edit().putString("avatar_uri", it.toString()).apply(); profilePhoto.setImageURI(it); profilePhoto.setPadding(0,0,0,0) } }
 
     private val locationReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -89,12 +90,13 @@ class MainActivity : AppCompatActivity() {
         satelliteDisplay = findViewById(R.id.satelliteDisplay)
         profilePhoto = findViewById(R.id.profilePhoto)
         profileCover = findViewById(R.id.profileCover)
-        getSharedPreferences("optilive_profile", MODE_PRIVATE).getString("photo_uri", null)?.let { try { profilePhoto.setImageURI(Uri.parse(it)); profilePhoto.setPadding(0,0,0,0); profileCover.setImageURI(Uri.parse(it)); profileCover.setPadding(0,0,0,0) } catch (_: Exception) {} }
-        findViewById<android.view.View>(R.id.changePhoto).setOnClickListener { photoPicker.launch("image/*") }
-        findViewById<android.view.View>(R.id.profilePhoto).setOnClickListener { photoPicker.launch("image/*") }
-        findViewById<android.view.View>(R.id.photoBadge).setOnClickListener { photoPicker.launch("image/*") }
-        findViewById<android.view.View>(R.id.profileCover).setOnClickListener { photoPicker.launch("image/*") }
-        findViewById<android.view.View>(R.id.editProfile).setOnClickListener { showProfileEditor() }
+        val photoPrefs = getSharedPreferences("optilive_profile", MODE_PRIVATE)
+        photoPrefs.getString("cover_uri", photoPrefs.getString("photo_uri", null))?.let { try { profileCover.setImageURI(Uri.parse(it)); profileCover.setPadding(0,0,0,0) } catch (_: Exception) {} }
+        photoPrefs.getString("avatar_uri", photoPrefs.getString("photo_uri", null))?.let { try { profilePhoto.setImageURI(Uri.parse(it)); profilePhoto.setPadding(0,0,0,0) } catch (_: Exception) {} }
+        findViewById<android.view.View>(R.id.changePhoto).setOnClickListener { coverPicker.launch(arrayOf("image/*")) }
+        findViewById<android.view.View>(R.id.profileCover).setOnClickListener { coverPicker.launch(arrayOf("image/*")) }
+        findViewById<android.view.View>(R.id.profilePhoto).setOnClickListener { avatarPicker.launch(arrayOf("image/*")) }
+        findViewById<android.view.View>(R.id.photoBadge).setOnClickListener { avatarPicker.launch(arrayOf("image/*")) }
 
         fun showProfileEditor() {
             val panel = findViewById<android.view.View>(R.id.settingsPanel)
