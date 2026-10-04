@@ -1,16 +1,23 @@
-const express=require("express"),http=require("http"),WebSocket=require("ws"),path=require("path");
+const express=require("express"),http=require("http"),WebSocket=require("ws"),path=require("path"),crypto=require("crypto");
 const app=express(),server=http.createServer(app),wss=new WebSocket.Server({server});
-const boats=new Map(),tracks=new Map();
+const boats=new Map(),tracks=new Map(),sessions=new Map(),regattas=new Map(),marks=new Map();
 app.use(express.json({limit:"256kb"}));app.use("/vendor/leaflet",express.static(path.join(__dirname,"node_modules","leaflet","dist")));app.use(express.static(path.join(__dirname,"public")));
+const ADMIN_USER=process.env.OPTILIVE_ADMIN_USER||"admin";
+const ADMIN_HASH=process.env.OPTILIVE_ADMIN_PASSWORD_HASH||"";
+const ADMIN_PASSWORD=process.env.OPTILIVE_ADMIN_PASSWORD||"";
+function safeEq(a,b){const A=Buffer.from(String(a)),B=Buffer.from(String(b));return A.length===B.length&&crypto.timingSafeEqual(A,B)}
+function verifyPassword(password){if(ADMIN_HASH){const [salt,hash]=ADMIN_HASH.split(":");if(!salt||!hash)return false;const got=crypto.scryptSync(password,salt,64).toString("hex");return safeEq(got,hash)}return ADMIN_PASSWORD&&safeEq(password,ADMIN_PASSWORD)}
+function auth(req,res,next){const h=req.headers.authorization||"";const t=h.startsWith("Bearer ")?h.slice(7):"";const s=sessions.get(t);if(!s||s.expires<Date.now()){if(t)sessions.delete(t);return res.status(401).json({ok:false,error:"unauthorized"})}req.user=s;next()}
 app.get("/api/health",(_q,r)=>r.json({ok:true,boats:boats.size,time:Date.now()}));
-app.get("/api/boats",(_q,r)=>r.json([...boats.values()]));
-app.get("/api/tracks",(_q,r)=>r.json(Object.fromEntries(tracks)));
-app.post("/api/position",(req,res)=>{
- const {sail,lat,lon,accuracy,speedKnots,timestamp}=req.body||{};
- if(!sail||!Number.isFinite(lat)||!Number.isFinite(lon))return res.status(400).json({ok:false,error:"sail, lat and lon required"});
- const p={sail:String(sail).trim().toUpperCase(),lat,lon,accuracy:Number.isFinite(accuracy)?accuracy:null,speedKnots:Number.isFinite(speedKnots)?speedKnots:null,timestamp:Number.isFinite(timestamp)?timestamp:Date.now(),receivedAt:Date.now()};
- boats.set(p.sail,p);if(!tracks.has(p.sail))tracks.set(p.sail,[]);const t=tracks.get(p.sail);t.push([p.lat,p.lon]);if(t.length>1500)t.shift();
- const msg=JSON.stringify({type:"position",data:p});for(const c of wss.clients)if(c.readyState===WebSocket.OPEN)c.send(msg);res.json({ok:true});
-});
-wss.on("connection",ws=>ws.send(JSON.stringify({type:"snapshot",data:[...boats.values()],tracks:Object.fromEntries(tracks)})));
-const PORT=process.env.PORT||3000;server.listen(PORT,"0.0.0.0",()=>console.log(`OptiLive server: http://0.0.0.0:${PORT}`));
+app.post("/api/auth/login",(req,res)=>{const {username,password}=req.body||{};if(username!==ADMIN_USER||!verifyPassword(String(password||"")))return res.status(401).json({ok:false,error:"invalid_credentials"});const token=crypto.randomBytes(32).toString("hex");sessions.set(token,{username,role:"admin",expires:Date.now()+12*60*60*1000});res.json({ok:true,token,role:"admin",expiresIn:43200})});
+app.post("/api/auth/logout",auth,(req,res)=>{const h=req.headers.authorization||"";sessions.delete(h.slice(7));res.json({ok:true})});
+app.get("/api/regattas",(_q,r)=>r.json([...regattas.values()]));
+app.post("/api/admin/regattas",auth,(req,res)=>{const {name,club,venue,startDate,endDate,days}=req.body||{};if(!name)return res.status(400).json({ok:false,error:"name required"});const id=crypto.randomUUID();const item={id,name:String(name),club:String(club||""),venue:String(venue||""),startDate:startDate||null,endDate:endDate||null,days:Array.isArray(days)?days:[],status:"draft",createdAt:Date.now()};regattas.set(id,item);res.status(201).json(item)});
+app.put("/api/admin/regattas/:id",auth,(req,res)=>{const old=regattas.get(req.params.id);if(!old)return res.status(404).json({ok:false,error:"not_found"});const item={...old,...req.body,id:old.id,updatedAt:Date.now()};regattas.set(old.id,item);res.json(item)});
+app.post("/api/admin/regattas/:id/marks",auth,(req,res)=>{if(!regattas.has(req.params.id))return res.status(404).json({ok:false,error:"regatta_not_found"});const {deviceId,name,type,lat,lon}=req.body||{};if(!deviceId||!name)return res.status(400).json({ok:false,error:"deviceId and name required"});const key=req.params.id+":"+deviceId;const m={regattaId:req.params.id,deviceId:String(deviceId),name:String(name),type:String(type||"mark"),lat:Number.isFinite(lat)?lat:null,lon:Number.isFinite(lon)?lon:null,updatedAt:Date.now()};marks.set(key,m);res.status(201).json(m)});
+app.get("/api/regattas/:id/marks",(req,res)=>res.json([...marks.values()].filter(x=>x.regattaId===req.params.id)));
+app.post("/api/mark-position",(req,res)=>{const {regattaId,deviceId,lat,lon,accuracy,timestamp}=req.body||{};const key=String(regattaId)+":"+String(deviceId);const m=marks.get(key);if(!m||!Number.isFinite(lat)||!Number.isFinite(lon))return res.status(400).json({ok:false,error:"registered mark and coordinates required"});Object.assign(m,{lat,lon,accuracy:Number.isFinite(accuracy)?accuracy:null,timestamp:Number.isFinite(timestamp)?timestamp:Date.now(),updatedAt:Date.now()});const msg=JSON.stringify({type:"mark_position",data:m});for(const c of wss.clients)if(c.readyState===WebSocket.OPEN)c.send(msg);res.json({ok:true})});
+app.get("/api/boats",(_q,r)=>r.json([...boats.values()]));app.get("/api/tracks",(_q,r)=>r.json(Object.fromEntries(tracks)));
+app.post("/api/position",(req,res)=>{const {sail,lat,lon,accuracy,speedKnots,timestamp}=req.body||{};if(!sail||!Number.isFinite(lat)||!Number.isFinite(lon))return res.status(400).json({ok:false,error:"sail, lat and lon required"});const p={sail:String(sail).trim().toUpperCase(),lat,lon,accuracy:Number.isFinite(accuracy)?accuracy:null,speedKnots:Number.isFinite(speedKnots)?speedKnots:null,timestamp:Number.isFinite(timestamp)?timestamp:Date.now(),receivedAt:Date.now()};boats.set(p.sail,p);if(!tracks.has(p.sail))tracks.set(p.sail,[]);const t=tracks.get(p.sail);t.push([p.lat,p.lon]);if(t.length>1500)t.shift();const msg=JSON.stringify({type:"position",data:p});for(const c of wss.clients)if(c.readyState===WebSocket.OPEN)c.send(msg);res.json({ok:true})});
+wss.on("connection",ws=>ws.send(JSON.stringify({type:"snapshot",data:[...boats.values()],tracks:Object.fromEntries(tracks),marks:[...marks.values()]})));
+const PORT=process.env.PORT||3000;server.listen(PORT,"0.0.0.0",()=>console.log("OptiLive server ready on "+PORT));
