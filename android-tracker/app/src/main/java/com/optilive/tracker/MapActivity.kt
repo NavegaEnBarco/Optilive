@@ -68,7 +68,8 @@ class MapActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.backTracking).setOnClickListener{finish()}
         findViewById<TextView>(R.id.zoomIn).setOnClickListener{w.evaluateJavascript("if(window.map)map.zoomIn()",null)}
         findViewById<TextView>(R.id.zoomOut).setOnClickListener{w.evaluateJavascript("if(window.map)map.zoomOut()",null)}
-        findViewById<TextView>(R.id.layersMap).setOnClickListener{w.evaluateJavascript("if(window.map){var z=map.getZoom();map.setZoom(z==16?14:16)}",null)}
+        var overlaysVisible=true
+        findViewById<TextView>(R.id.layersMap).setOnClickListener{v->overlaysVisible=!overlaysVisible;val vis=if(overlaysVisible) View.VISIBLE else View.GONE;findViewById<View>(R.id.racePanel).visibility=vis;findViewById<View>(R.id.compassPanel).visibility=vis;findViewById<View>(R.id.windInfo).visibility=vis;findViewById<View>(R.id.livePanel).visibility=vis;(v as TextView).text=if(overlaysVisible)"▱" else "▰"}
         findViewById<TextView>(R.id.fullscreenMap).setOnClickListener{w.evaluateJavascript("if(window.map)map.invalidateSize()",null)}
         findViewById<TextView>(R.id.centerMap).setOnClickListener{w.evaluateJavascript("if(window.focusLive)window.focusLive()",null)}
         findViewById<TextView>(R.id.classificationNav).setOnClickListener{startActivity(Intent(this,ClassificationActivity::class.java));finish()}
