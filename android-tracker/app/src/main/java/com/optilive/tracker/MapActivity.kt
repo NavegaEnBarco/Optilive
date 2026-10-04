@@ -23,17 +23,21 @@ import java.util.Locale
 
 class MapActivity : AppCompatActivity() {
     private val handler = Handler(Looper.getMainLooper())
-    private val openedAt = System.currentTimeMillis()
-    private val clockTick = object:Runnable{override fun run(){val now=System.currentTimeMillis();val local=SimpleDateFormat("HH:mm:ss",Locale.getDefault()).format(Date(now));val elapsed=(now-openedAt)/1000;val race=String.format(Locale.getDefault(),"%02d:%02d:%02d",elapsed/3600,(elapsed%3600)/60,elapsed%60);findViewById<TextView>(R.id.localTimeTop)?.text=local;findViewById<TextView>(R.id.localTimeBottom)?.text=local;findViewById<TextView>(R.id.raceTimeTop)?.text=race;findViewById<TextView>(R.id.raceTimeBottom)?.text=race;handler.postDelayed(this,1000)}}
+    private var raceStartedAt = 0L
+    private val clockTick = object:Runnable{override fun run(){val now=System.currentTimeMillis();val local=SimpleDateFormat("HH:mm:ss",Locale.getDefault()).format(Date(now));val elapsed=(now-raceStartedAt).coerceAtLeast(0)/1000;val race=String.format(Locale.getDefault(),"%02d:%02d:%02d",elapsed/3600,(elapsed%3600)/60,elapsed%60);findViewById<TextView>(R.id.localTimeTop)?.text=local;findViewById<TextView>(R.id.localTimeBottom)?.text=local;findViewById<TextView>(R.id.raceTimeTop)?.text=race;findViewById<TextView>(R.id.raceTimeBottom)?.text=race;handler.postDelayed(this,1000)}}
     override fun onCreate(b: Bundle?) {
         super.onCreate(b)
         setContentView(R.layout.activity_map)
+        val racePrefs=getSharedPreferences("optilive_race",MODE_PRIVATE)
+        raceStartedAt=racePrefs.getLong("started_at",0L)
+        if(raceStartedAt==0L){raceStartedAt=System.currentTimeMillis();racePrefs.edit().putLong("started_at",raceStartedAt).apply()}
         val p=getSharedPreferences("optilive_profile",MODE_PRIVATE)
         var u=(p.getString("server_url","")?:"").trim()
         if(u.isNotBlank()&&!u.startsWith("http")) u="http://$u"
         findViewById<TextView>(R.id.raceName).text="Trofeo Fornells 2026"
         findViewById<TextView>(R.id.raceClub).text=p.getString("club","C.M. Mahón")?:"C.M. Mahón"
-        findViewById<TextView>(R.id.liveStatus).text=if(u.isBlank())"● Sin conexión" else "● En directo"
+        findViewById<TextView>(R.id.liveStatus).text=if(u.isBlank())"● SIN CONEXIÓN" else "● EN DIRECTO"
+        findViewById<TextView>(R.id.gpsStatus).text="▮▮▮ GPS · esperando"
         val w=findViewById<WebView>(R.id.webMap)
         w.settings.javaScriptEnabled=true
         val mapError=findViewById<TextView>(R.id.mapError)
@@ -64,6 +68,8 @@ class MapActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.backTracking).setOnClickListener{finish()}
         findViewById<TextView>(R.id.zoomIn).setOnClickListener{w.evaluateJavascript("if(window.map)map.zoomIn()",null)}
         findViewById<TextView>(R.id.zoomOut).setOnClickListener{w.evaluateJavascript("if(window.map)map.zoomOut()",null)}
+        findViewById<TextView>(R.id.layersMap).setOnClickListener{w.evaluateJavascript("if(window.map){var z=map.getZoom();map.setZoom(z==16?14:16)}",null)}
+        findViewById<TextView>(R.id.fullscreenMap).setOnClickListener{w.evaluateJavascript("if(window.map)map.invalidateSize()",null)}
         findViewById<TextView>(R.id.centerMap).setOnClickListener{w.evaluateJavascript("if(window.focusLive)window.focusLive()",null)}
         findViewById<TextView>(R.id.classificationNav).setOnClickListener{startActivity(Intent(this,ClassificationActivity::class.java));finish()}
         findViewById<TextView>(R.id.trackingNav).setOnClickListener{startActivity(Intent(this,TrackingActivity::class.java));finish()}
@@ -82,7 +88,7 @@ class MapActivity : AppCompatActivity() {
                     val j=JSONObject(URL("https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lon&current=temperature_2m,precipitation,wind_speed_10m,wind_direction_10m,wind_gusts_10m&wind_speed_unit=kn").readText()).getJSONObject("current")
                     val sp=j.getDouble("wind_speed_10m");val deg=j.getDouble("wind_direction_10m");val gust=j.optDouble("wind_gusts_10m",sp);val temp=j.optDouble("temperature_2m",Double.NaN);val rain=j.optDouble("precipitation",0.0)
                     val dirs=arrayOf("N","NE","E","SE","S","SO","O","NO");val dir=dirs[((deg+22.5)/45).toInt()%8]
-                    runOnUiThread{out.text="💨 Viento (modelo)  %.1f kn · %s %d°   |   Racha %.1f kn   |   %.0f°C · Lluvia %.1f mm".format(sp,dir,deg.toInt(),gust,temp,rain)}
+                    runOnUiThread{out.text="💨  VIENTO (MODELO)  %.1f kn · %s (%d°)    |    RACHA %.1f kn    |    TEMP %.0f°C    |    LLUVIA %.1f mm".format(sp,dir,deg.toInt(),gust,temp,rain);findViewById<TextView>(R.id.gpsStatus).text="▮▮▮ GPS OK · "+((System.currentTimeMillis()-best.optLong("timestamp")).coerceAtLeast(0)/1000)+" s"}
                 }catch(e:Exception){runOnUiThread{out.text="💨 Viento no disponible"}}
             }.start()
         }
