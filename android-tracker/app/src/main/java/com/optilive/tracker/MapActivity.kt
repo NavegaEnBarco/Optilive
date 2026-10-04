@@ -50,7 +50,7 @@ class MapActivity : AppCompatActivity() {
         w.settings.mixedContentMode=WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         w.settings.cacheMode=WebSettings.LOAD_NO_CACHE
         w.clearCache(true)
-        val mapUrl=(if(u.isBlank()) "https://optilive-node-production.up.railway.app" else u).trimEnd('/')+"/?v=20261003-2"
+        val mapUrl=(if(u.isBlank()) "https://optilive-node-production.up.railway.app" else u).trimEnd('/')+"/?v=20261004-boat-v2-"+System.currentTimeMillis()
         w.loadUrl(mapUrl)
         loadWind()
         findViewById<TextView>(R.id.windInfo).setOnClickListener{startActivity(Intent(this,WeatherActivity::class.java))}
