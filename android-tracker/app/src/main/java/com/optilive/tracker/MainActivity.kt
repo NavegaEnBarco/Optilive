@@ -124,14 +124,14 @@ class MainActivity : AppCompatActivity() {
             refreshProfile()
             Toast.makeText(this, "Configuración guardada", Toast.LENGTH_SHORT).show()
         }
-        findViewById<android.view.View>(R.id.mapButton).setOnClickListener { startActivity(Intent(this, MapActivity::class.java)) }
+        findViewById<android.view.View>(R.id.mapButton).apply { isClickable=true; isFocusable=true; setOnClickListener { startActivity(Intent(this@MainActivity, MapActivity::class.java)) } }
         findViewById<android.view.View>(R.id.settingsButton).setOnClickListener {
             val p = findViewById<android.view.View>(R.id.settingsPanel)
             p.visibility = if (p.visibility == android.view.View.VISIBLE) android.view.View.GONE else android.view.View.VISIBLE
         }
-        findViewById<android.view.View>(R.id.homeButton).setOnClickListener { findViewById<android.view.View>(R.id.settingsPanel).visibility = android.view.View.GONE }
+        findViewById<android.view.View>(R.id.homeButton).apply { isClickable=true; isFocusable=true; setOnClickListener { startActivity(Intent(this@MainActivity, TrackingActivity::class.java)) } }
         findViewById<android.view.View>(R.id.topSettings).setOnClickListener { findViewById<android.view.View>(R.id.settingsPanel).visibility = android.view.View.VISIBLE }
-        findViewById<android.view.View>(R.id.racesButton).setOnClickListener { Toast.makeText(this, "Regatas: siguiente módulo", Toast.LENGTH_SHORT).show() }
+        findViewById<android.view.View>(R.id.racesButton).apply { isClickable=true; isFocusable=true; setOnClickListener { startActivity(Intent(this@MainActivity, ClassificationActivity::class.java)) } }
         findViewById<android.view.View>(R.id.historyButton).setOnClickListener { Toast.makeText(this, "Historial: siguiente módulo", Toast.LENGTH_SHORT).show() }
         findViewById<Button>(R.id.startTracking).setOnClickListener { requestAndStart() }
         findViewById<android.view.View>(R.id.stopTracking).setOnClickListener {
