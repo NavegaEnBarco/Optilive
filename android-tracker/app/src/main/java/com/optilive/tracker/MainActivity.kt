@@ -151,7 +151,7 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Configuración guardada", Toast.LENGTH_SHORT).show()
         }
         findViewById<android.view.View>(R.id.mapButton).apply { isClickable=true; isFocusable=true; setOnClickListener { startActivity(Intent(this@MainActivity, MapActivity::class.java)) } }
-        findViewById<android.view.View>(R.id.settingsButton).setOnLongClickListener { startActivity(Intent(this@MainActivity, AdminActivity::class.java)); true }
+        findViewById<android.view.View>(R.id.settingsButton).apply { isLongClickable=true; setOnLongClickListener { startActivity(Intent(this@MainActivity, AdminActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)); true } }
         findViewById<android.view.View>(R.id.settingsButton).setOnClickListener {
             val p = findViewById<android.view.View>(R.id.settingsPanel)
             p.visibility = if (p.visibility == android.view.View.VISIBLE) android.view.View.GONE else android.view.View.VISIBLE
