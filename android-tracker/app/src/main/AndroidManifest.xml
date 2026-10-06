@@ -6,6 +6,7 @@
         <activity android:name=".RaceAdminActivity" android:screenOrientation="portrait" android:exported="false" />
         <activity android:name=".CourseAdminActivity" android:screenOrientation="portrait" android:exported="false" />
         <activity android:name=".AdminActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".RegattasActivity" android:screenOrientation="portrait" android:exported="false" />
         <activity android:name=".WeatherActivity" android:screenOrientation="portrait" android:exported="false" />
         <activity android:name=".ClassificationActivity" android:screenOrientation="portrait" android:exported="false" />
         <activity android:name=".TrackingActivity" android:screenOrientation="portrait" android:exported="false" />
