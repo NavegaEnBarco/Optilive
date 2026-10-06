@@ -159,7 +159,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<android.view.View>(R.id.homeButton).apply { isClickable=true; isFocusable=true; setOnClickListener { startActivity(Intent(this@MainActivity, TrackingActivity::class.java)) } }
         findViewById<android.view.View>(R.id.topSettings).setOnClickListener { showProfileEditor() }
         findViewById<android.view.View>(R.id.racesButton).apply { isClickable=true; isFocusable=true; setOnClickListener { startActivity(Intent(this@MainActivity, ClassificationActivity::class.java)) } }
-        findViewById<android.view.View>(R.id.historyButton).setOnClickListener { Toast.makeText(this, "Historial: siguiente módulo", Toast.LENGTH_SHORT).show() }
+        findViewById<android.view.View>(R.id.historyButton).setOnClickListener { startActivity(Intent(this@MainActivity, RegattasActivity::class.java)) }
         findViewById<Button>(R.id.startTracking).setOnClickListener { requestAndStart() }
         findViewById<android.view.View>(R.id.stopTracking).setOnClickListener {
             stopService(Intent(this, LocationService::class.java))
