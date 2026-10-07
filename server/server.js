@@ -27,7 +27,48 @@ app.put("/api/admin/regattas/:id",auth,(req,res)=>{const old=regattas.get(req.pa
 app.post("/api/admin/regattas/:id/marks",auth,(req,res)=>{if(!regattas.has(req.params.id))return res.status(404).json({ok:false,error:"regatta_not_found"});const {deviceId,name,type,lat,lon}=req.body||{};const hasCoords=Number.isFinite(lat)&&Number.isFinite(lon)&&lat>=-90&&lat<=90&&lon>=-180&&lon<=180;if(!name||(!deviceId&&!hasCoords))return res.status(400).json({ok:false,error:"name and GPS or coordinates required"});const dev=deviceId?String(deviceId):("MANUAL-"+crypto.randomUUID());const key=req.params.id+":"+dev;const m={regattaId:req.params.id,deviceId:dev,name:String(name),type:String(type||"mark"),lat:hasCoords?lat:null,lon:hasCoords?lon:null,positionSource:deviceId?"gps":"manual",updatedAt:Date.now()};marks.set(key,m);persist();res.status(201).json(m)});
 app.put("/api/admin/regattas/:id/marks/:deviceId",auth,(req,res)=>{const key=req.params.id+":"+req.params.deviceId,m=marks.get(key);if(!m)return res.status(404).json({ok:false,error:"mark_not_found"});const {lat,lon}=req.body||{};if(!Number.isFinite(lat)||!Number.isFinite(lon)||lat < -90||lat > 90||lon < -180||lon > 180)return res.status(400).json({ok:false,error:"valid coordinates required"});Object.assign(m,{lat,lon,positionSource:"manual",updatedAt:Date.now()});marks.set(key,m);persist();const msg=JSON.stringify({type:"mark_position",data:m});for(const c of wss.clients)if(c.readyState===WebSocket.OPEN)c.send(msg);res.json(m)});
 app.delete("/api/admin/regattas/:id/marks/:deviceId",auth,(req,res)=>{const key=req.params.id+":"+req.params.deviceId,m=marks.get(key);if(!m)return res.status(404).json({ok:false,error:"mark_not_found"});marks.delete(key);persist();const msg=JSON.stringify({type:"mark_deleted",data:{regattaId:m.regattaId,deviceId:m.deviceId}});for(const c of wss.clients)if(c.readyState===WebSocket.OPEN)c.send(msg);res.json({ok:true})});
-app.post("/api/admin/regattas/:id/races",auth,(req,res)=>{if(!regattas.has(req.params.id))return res.status(404).json({ok:false,error:"regatta_not_found"});const {day,number,status}=req.body||{};if(!Number.isInteger(day)||!Number.isInteger(number))return res.status(400).json({ok:false,error:"day and number required"});const allowed=["Pendiente","En curso","Finalizada"];const st=allowed.includes(status)?status:"Pendiente";if(st==="En curso")for(const [k,v] of races)if(k!==req.params.id+":"+day+":"+number&&v.regattaId===req.params.id&&v.status==="En curso"){v.status="Finalizada";v.endedAt=Date.now();races.set(k,v)}const key=req.params.id+":"+day+":"+number;const old=races.get(key)||{};const now=Date.now();if(old.status==="Finalizada"&&st!=="Finalizada")return res.status(409).json({error:"finished_race_locked"});const item={...old,regattaId:req.params.id,day,number,status:st,updatedAt:now};if(st==="En curso"&&!item.startedAt){item.startedAt=now;item.marks=[...marks.values()].filter(m=>m.regattaId===req.params.id).map(m=>({...m}));}if(st==="Finalizada"&&!item.endedAt)item.endedAt=now;races.set(key,item);persist();res.status(201).json(item)});
+app.post("/api/admin/regattas/:id/races",auth,(req,res)=>{
+ const id=req.params.id;if(!regattas.has(id))return res.status(404).json({error:"regatta_not_found"});
+ const {day,number,status,date,plannedTime}=req.body||{};
+ if(!Number.isInteger(day)||day<1||!Number.isInteger(number)||number<1)return res.status(400).json({error:"positive day and number required"});
+ const key=id+":"+day+":"+number,old=races.get(key)||{},st=status||old.status||"Pendiente",now=Date.now();
+ if(!["Pendiente","Preparada","En curso","Finalizada","Aplazada","Anulada"].includes(st))return res.status(400).json({error:"invalid_status"});
+ if(old.startedAt&&st!==old.status&&st!=="Finalizada"&&st!=="Anulada")return res.status(409).json({error:"started_race_locked"});
+ if(st==="En curso"&&[...races.entries()].some(([k,r])=>k!==key&&r.regattaId===id&&r.status==="En curso"))return res.status(409).json({error:"finish_active_race_first"});
+ const item={...old,regattaId:id,day,number,status:st,updatedAt:now};
+ if(date!==undefined)item.date=date;if(plannedTime!==undefined)item.plannedTime=plannedTime;
+ if(st==="En curso"&&!item.startedAt){item.startedAt=now;item.marks=item.marks||[...marks.values()].filter(m=>m.regattaId===id).map(m=>({...m}));}
+ if((st==="Finalizada"||st==="Anulada")&&item.startedAt&&!item.endedAt)item.endedAt=now;
+ races.set(key,item);persist();res.status(201).json(item);
+});
+app.post("/api/admin/regattas/:id/schedule",auth,(req,res)=>{
+ const id=req.params.id,g=regattas.get(id),days=req.body.days;
+ if(!g)return res.status(404).json({error:"regatta_not_found"});
+ if(!Array.isArray(days)||!days.length||days.length>30||days.some(d=>!/^\d{4}-\d{2}-\d{2}$/.test(d.date)||!Number.isInteger(d.count)||d.count<1||d.count>20||isNaN(Date.parse(d.date))))return res.status(400).json({error:"invalid_days"});
+ if(new Set(days.map(d=>d.date)).size!==days.length)return res.status(400).json({error:"duplicate_dates"});
+ if([...races.values()].some(r=>r.regattaId===id))return res.status(409).json({error:"schedule_already_exists"});
+ let number=0;days.sort((a,b)=>a.date.localeCompare(b.date)).forEach((d,i)=>{for(let n=0;n<d.count;n++){number++;races.set(id+":"+(i+1)+":"+number,{regattaId:id,day:i+1,number,date:d.date,plannedTime:n===0?d.time||"":"",status:"Pendiente",marks:[],updatedAt:Date.now()});}});
+ g.days=days;persist();res.status(201).json({ok:true,count:number});
+});
+app.get("/api/regattas/:id/races/:day/:number/marks",(req,res)=>{const r=races.get(req.params.id+":"+req.params.day+":"+req.params.number);if(!r)return res.status(404).json({error:"race_not_found"});res.json(r.marks||[])});
+app.all("/api/admin/regattas/:id/races/:day/:number/marks/:deviceId?",auth,(req,res)=>{
+ const key=req.params.id+":"+req.params.day+":"+req.params.number,r=races.get(key);
+ if(!r)return res.status(404).json({error:"race_not_found"});if(r.startedAt||r.status==="Anulada")return res.status(409).json({error:"race_course_locked"});
+ r.marks=r.marks||[];const b=req.body||{},index=r.marks.findIndex(m=>m.deviceId===req.params.deviceId);
+ if(req.method==="DELETE"){if(index<0)return res.status(404).json({error:"mark_not_found"});r.marks.splice(index,1)}
+ else if(req.method==="POST"||req.method==="PUT"){
+ if(!Number.isFinite(b.lat)||!Number.isFinite(b.lon)||Math.abs(b.lat)>90||Math.abs(b.lon)>180)return res.status(400).json({error:"invalid_coordinates"});
+ if(req.method==="PUT"&&index<0)return res.status(404).json({error:"mark_not_found"});if(req.method==="POST"&&!b.name)return res.status(400).json({error:"name_required"});
+ const m={...(index>=0?r.marks[index]:{}),regattaId:r.regattaId,deviceId:req.params.deviceId||"MANUAL-"+crypto.randomUUID(),lat:b.lat,lon:b.lon,positionSource:"manual",updatedAt:Date.now()};
+ if(b.name)m.name=String(b.name);if(b.type)m.type=String(b.type);if(index>=0)r.marks[index]=m;else r.marks.push(m);
+ r.status="Pendiente";persist();return res.status(req.method==="POST"?201:200).json(m);
+ }else return res.sendStatus(405);r.status="Pendiente";persist();res.json({ok:true});
+});
+app.post("/api/admin/regattas/:id/races/:day/:number/copy-course",auth,(req,res)=>{
+ const key=req.params.id+":"+req.params.day+":"+req.params.number,r=races.get(key),source=races.get(req.params.id+":"+req.body.day+":"+req.body.number);
+ if(!r||!source)return res.status(404).json({error:"race_not_found"});if(r.startedAt)return res.status(409).json({error:"race_course_locked"});
+ r.marks=(source.marks||[]).map(m=>({...m}));r.status="Pendiente";persist();res.json({ok:true});
+});
 app.get("/api/regattas/:id/races",(req,res)=>res.json([...races.values()].filter(x=>x.regattaId===req.params.id).sort((a,b)=>a.day-b.day||a.number-b.number)));
 app.get("/api/regattas/:id/marks",(req,res)=>res.json([...marks.values()].filter(x=>x.regattaId===req.params.id)));
 app.post("/api/mark-position",(req,res)=>{const {regattaId,deviceId,lat,lon,accuracy,timestamp}=req.body||{};const key=String(regattaId)+":"+String(deviceId);const m=marks.get(key);if(!m||!Number.isFinite(lat)||!Number.isFinite(lon))return res.status(400).json({ok:false,error:"registered mark and coordinates required"});Object.assign(m,{lat,lon,positionSource:"gps",accuracy:Number.isFinite(accuracy)?accuracy:null,timestamp:Number.isFinite(timestamp)?timestamp:Date.now(),updatedAt:Date.now()});persist();const msg=JSON.stringify({type:"mark_position",data:m});for(const c of wss.clients)if(c.readyState===WebSocket.OPEN)c.send(msg);res.json({ok:true})});
