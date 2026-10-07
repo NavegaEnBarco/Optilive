@@ -26,13 +26,10 @@ class MapActivity : AppCompatActivity() {
     private var regattaServer = MainActivity.DEFAULT_SERVER
     private val regattaRefresh = object : Runnable { override fun run() { loadCurrentRegatta(); handler.postDelayed(this, 15000L) } }
     private var raceStartedAt = 0L
-    private val clockTick = object:Runnable{override fun run(){val now=System.currentTimeMillis();val local=SimpleDateFormat("HH:mm:ss",Locale.getDefault()).format(Date(now));val elapsed=(now-raceStartedAt).coerceAtLeast(0)/1000;val race=String.format(Locale.getDefault(),"%02d:%02d:%02d",elapsed/3600,(elapsed%3600)/60,elapsed%60);findViewById<TextView>(R.id.localTimeTop)?.text=local;findViewById<TextView>(R.id.localTimeBottom)?.text=local;findViewById<TextView>(R.id.raceTimeTop)?.text=race;findViewById<TextView>(R.id.raceTimeBottom)?.text=race;handler.postDelayed(this,1000)}}
+    private val clockTick = object:Runnable{override fun run(){val now=System.currentTimeMillis();val local=SimpleDateFormat("HH:mm:ss",Locale.getDefault()).format(Date(now));val elapsed=if(raceStartedAt>0L)(now-raceStartedAt).coerceAtLeast(0)/1000 else 0L;val race=String.format(Locale.getDefault(),"%02d:%02d:%02d",elapsed/3600,(elapsed%3600)/60,elapsed%60);findViewById<TextView>(R.id.localTimeTop)?.text=local;findViewById<TextView>(R.id.localTimeBottom)?.text=local;findViewById<TextView>(R.id.raceTimeTop)?.text=race;findViewById<TextView>(R.id.raceTimeBottom)?.text=race;handler.postDelayed(this,1000)}}
     override fun onCreate(b: Bundle?) {
         super.onCreate(b)
         setContentView(R.layout.activity_map)
-        val racePrefs=getSharedPreferences("optilive_race",MODE_PRIVATE)
-        raceStartedAt=racePrefs.getLong("started_at",0L)
-        if(raceStartedAt==0L){raceStartedAt=System.currentTimeMillis();racePrefs.edit().putLong("started_at",raceStartedAt).apply()}
         val p=getSharedPreferences("optilive_profile",MODE_PRIVATE)
         var u=(p.getString("server_url","")?:"").trim()
         if(u.isNotBlank()&&!u.startsWith("http")) u="http://$u"
@@ -82,23 +79,20 @@ class MapActivity : AppCompatActivity() {
     }
     private fun loadCurrentRegatta() {
         Thread {
-            val connection = URL(regattaServer + "/api/regattas").openConnection() as java.net.HttpURLConnection
+            val connection = URL(regattaServer + "/api/regattas/current").openConnection() as java.net.HttpURLConnection
             try {
                 connection.connectTimeout = 5000
                 connection.readTimeout = 5000
-                val items = org.json.JSONArray(connection.inputStream.bufferedReader().use { it.readText() })
-                var latest: JSONObject? = null
-                for (i in 0 until items.length()) {
-                    val item = items.getJSONObject(i)
-                    val old = latest
-                    if (old == null || item.optLong("createdAt") > old.optLong("createdAt") ||
-                        (item.optLong("createdAt") == old.optLong("createdAt") && item.optString("id").compareTo(old.optString("id")) > 0)) latest = item
-                }
-                val regatta = latest
+                val result = JSONObject(connection.inputStream.bufferedReader().use { it.readText() })
+                val regatta = result.optJSONObject("regatta")
+                val race = result.optJSONObject("race")
                 runOnUiThread {
                     if (!isFinishing && !isDestroyed) {
-                        findViewById<TextView>(R.id.raceName).text = regatta?.optString("name")?.takeIf { it.isNotBlank() } ?: "Sin regatas creadas"
+                        findViewById<TextView>(R.id.raceName).text = regatta?.optString("name")?.takeIf { it.isNotBlank() } ?: "Sin regata en curso"
                         findViewById<TextView>(R.id.raceClub).text = regatta?.optString("club") ?: ""
+                        findViewById<TextView>(R.id.currentRaceLabel).text = if(race != null) "Prueba ${race.optInt("number")} · Día ${race.optInt("day")}" else "Sin prueba activa"
+                        findViewById<TextView>(R.id.liveStatus).text = if(race != null) "● EN DIRECTO" else "● EN ESPERA"
+                        raceStartedAt = race?.optLong("startedAt", 0L) ?: 0L
                     }
                 }
             } catch (_: Exception) {
