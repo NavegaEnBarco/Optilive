@@ -5,6 +5,7 @@ const DATA_FILE=process.env.OPTILIVE_DATA_FILE||"/data/optilive.json";
 function persist(){try{fs.mkdirSync(path.dirname(DATA_FILE),{recursive:true});const tmp=DATA_FILE+".tmp";fs.writeFileSync(tmp,JSON.stringify({regattas:[...regattas.entries()],marks:[...marks.entries()],races:[...races.entries()],raceTracks:[...raceTracks.entries()]}));fs.renameSync(tmp,DATA_FILE)}catch(e){console.error("persist",e.message)}}
 function restore(){try{if(!fs.existsSync(DATA_FILE))return;const d=JSON.parse(fs.readFileSync(DATA_FILE,"utf8"));for(const x of d.regattas||[])regattas.set(x[0],x[1]);for(const x of d.marks||[])marks.set(x[0],x[1]);for(const x of d.races||[])races.set(x[0],x[1]);for(const x of d.raceTracks||[])raceTracks.set(x[0],x[1]);console.log("OptiLive data restored",regattas.size,marks.size,races.size)}catch(e){console.error("restore",e.message)}}
 restore();
+if(require("./demo-regattas").seedDemoRegattas({regattas,races,raceTracks}))persist();
 app.use(express.json({limit:"256kb"}));app.use("/vendor/leaflet",express.static(path.join(__dirname,"node_modules","leaflet","dist")));app.use(express.static(path.join(__dirname,"public")));
 const ADMIN_USER=process.env.OPTILIVE_ADMIN_USER||"admin";
 const ADMIN_HASH=process.env.OPTILIVE_ADMIN_PASSWORD_HASH||"";
