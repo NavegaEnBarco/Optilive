@@ -46,9 +46,10 @@ app.post("/api/admin/regattas/:id/schedule",auth,(req,res)=>{
  if(!g)return res.status(404).json({error:"regatta_not_found"});
  if(!Array.isArray(days)||!days.length||days.length>30||days.some(d=>!/^\d{4}-\d{2}-\d{2}$/.test(d.date)||!Number.isInteger(d.count)||d.count<1||d.count>20||isNaN(Date.parse(d.date))))return res.status(400).json({error:"invalid_days"});
  if(new Set(days.map(d=>d.date)).size!==days.length)return res.status(400).json({error:"duplicate_dates"});
- if([...races.values()].some(r=>r.regattaId===id))return res.status(409).json({error:"schedule_already_exists"});
- let number=0;days.sort((a,b)=>a.date.localeCompare(b.date)).forEach((d,i)=>{for(let n=0;n<d.count;n++){number++;races.set(id+":"+(i+1)+":"+number,{regattaId:id,day:i+1,number,date:d.date,plannedTime:n===0?d.time||"":"",status:"Pendiente",marks:[],updatedAt:Date.now()});}});
- g.days=days;persist();res.status(201).json({ok:true,count:number});
+ const existing=[...races.values()].filter(r=>r.regattaId===id);
+ if(days.some(d=>existing.some(r=>r.date===d.date)))return res.status(409).json({error:"schedule_already_exists"});
+ const firstDay=Math.max(0,...existing.map(r=>r.day));let number=Math.max(0,...existing.map(r=>r.number));let added=0;days.sort((a,b)=>a.date.localeCompare(b.date)).forEach((d,i)=>{for(let n=0;n<d.count;n++){number++;added++;races.set(id+":"+(firstDay+i+1)+":"+number,{regattaId:id,day:firstDay+i+1,number,date:d.date,plannedTime:n===0?d.time||"":"",status:"Pendiente",marks:[],updatedAt:Date.now()});}});
+ g.days=[...(g.days||[]),...days];persist();res.status(201).json({ok:true,count:added});
 });
 app.get("/api/regattas/:id/races/:day/:number/marks",(req,res)=>{const r=races.get(req.params.id+":"+req.params.day+":"+req.params.number);if(!r)return res.status(404).json({error:"race_not_found"});res.json(r.marks||[])});
 app.all("/api/admin/regattas/:id/races/:day/:number/marks/:deviceId?",auth,(req,res)=>{
