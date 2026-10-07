@@ -1,11 +1,13 @@
 package com.optilive.tracker
 import android.os.Bundle
 import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 class RegattasActivity:AppCompatActivity(){
- override fun onCreate(b:Bundle?){super.onCreate(b);setContentView(R.layout.activity_regattas);findViewById<TextView>(R.id.back).setOnClickListener{finish()};val w=findViewById<WebView>(R.id.web);w.webViewClient=android.webkit.WebViewClient();w.settings.javaScriptEnabled=true;w.settings.domStorageEnabled=true;w.loadDataWithBaseURL("https://optilive-node-production.up.railway.app",html(),"text/html","UTF-8",null)}
- private fun html()="""<!doctype html><html><head><meta name='viewport' content='width=device-width,initial-scale=1'><style>*{box-sizing:border-box}body{margin:0;padding:12px;background:#f5f6f7;font-family:Arial;color:#26333d}.card{background:#fff;border-radius:15px;margin-bottom:12px;padding:16px;box-shadow:0 2px 10px #00000012}.date{color:#08a4c5;font-size:18px;font-weight:800}.name{font-size:20px;font-weight:900;margin:5px 0}.meta{color:#7b8993;font-size:12px}.race{display:flex;align-items:center;padding:12px 0;border-top:1px solid #edf0f2}.race:first-of-type{margin-top:12px}.race b{flex:1}.btn{background:#08a4c5;color:#fff;border:0;border-radius:6px;padding:9px 14px;font-weight:800}.live{background:#07945f}.pending{background:#aeb7bd}.empty{text-align:center;padding:40px;color:#87949d}</style></head><body><div id='list'><div class='empty'>Cargando regatas…</div></div><script>
-function esc(x){return String(x||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
-async function load(){try{let rs=await fetch('/api/regattas').then(r=>r.json());rs.sort((a,b)=>String(b.startDate||'').localeCompare(String(a.startDate||''))||(b.createdAt||0)-(a.createdAt||0));let h='';for(const g of rs){let races=await fetch('/api/regattas/'+encodeURIComponent(g.id)+'/races').then(r=>r.json());races.sort((a,b)=>b.day-a.day||b.number-a.number);h+='<div class="card"><div class="date">'+esc(g.startDate||'Sin fecha')+'</div><div class="name">'+esc(g.name)+'</div><div class="meta">'+esc(g.club)+' '+esc(g.venue)+'</div>';if(!races.length)h+='<div class="race"><b>Sin pruebas creadas</b><button class="btn pending">PENDIENTE</button></div>';races.forEach(x=>{let st=x.status||'Pendiente',cl=st==='En curso'?'btn live':st==='Finalizada'?'btn':'btn pending',tx=st==='Finalizada'?'REPLAY':st==='En curso'?'EN DIRECTO':'PENDIENTE';h+='<div class="race"><b>Prueba '+x.number+' · Día '+x.day+'</b><button class="'+cl+'" data-regatta="'+esc(g.id)+'" data-day="'+x.day+'" data-number="'+x.number+'" data-status="'+esc(st)+'">'+tx+'</button></div>'});h+='</div>'}list.innerHTML=h||'<div class="empty">Todavía no hay regatas creadas</div>'}catch(e){list.innerHTML='<div class="empty">No se pudieron cargar las regatas</div>'}}document.addEventListener('click',e=>{const b=e.target.closest('button[data-regatta]');if(!b||b.dataset.status==='Pendiente')return;location.href='/replay.html?regatta='+encodeURIComponent(b.dataset.regatta)+'&day='+b.dataset.day+'&number='+b.dataset.number});load()
-</script></body></html>"""}
+ override fun onCreate(b:Bundle?){super.onCreate(b);setContentView(R.layout.activity_regattas)
+ findViewById<TextView>(R.id.back).setOnClickListener{finish()}
+ val w=findViewById<WebView>(R.id.web);w.webViewClient=WebViewClient();w.settings.javaScriptEnabled=true;w.settings.domStorageEnabled=true
+ w.loadUrl("https://optilive-node-production.up.railway.app/regattas.html")
+ }
+}

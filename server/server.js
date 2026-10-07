@@ -70,7 +70,7 @@ app.post("/api/admin/regattas/:id/races/:day/:number/copy-course",auth,(req,res)
  if(!r||!source)return res.status(404).json({error:"race_not_found"});if(r.startedAt)return res.status(409).json({error:"race_course_locked"});
  r.marks=(source.marks||[]).map(m=>({...m}));r.status="Pendiente";persist();res.json({ok:true});
 });
-app.get("/api/regattas/:id/races",(req,res)=>res.json([...races.values()].filter(x=>x.regattaId===req.params.id).sort((a,b)=>a.day-b.day||a.number-b.number)));
+app.get("/api/regattas/:id/races",(req,res)=>res.json([...races.values()].filter(x=>x.regattaId===req.params.id).sort((a,b)=>a.day-b.day||a.number-b.number).map(r=>{const t=raceTracks.get(r.regattaId+":"+r.day+":"+r.number)||{};return {...r,gpsBoats:Object.keys(t).length,gpsPoints:Object.values(t).reduce((n,v)=>n+v.length,0)}})));
 app.get("/api/regattas/:id/marks",(req,res)=>res.json([...marks.values()].filter(x=>x.regattaId===req.params.id)));
 app.post("/api/mark-position",(req,res)=>{const {regattaId,deviceId,lat,lon,accuracy,timestamp}=req.body||{};const key=String(regattaId)+":"+String(deviceId);const m=marks.get(key);if(!m||!Number.isFinite(lat)||!Number.isFinite(lon))return res.status(400).json({ok:false,error:"registered mark and coordinates required"});Object.assign(m,{lat,lon,positionSource:"gps",accuracy:Number.isFinite(accuracy)?accuracy:null,timestamp:Number.isFinite(timestamp)?timestamp:Date.now(),updatedAt:Date.now()});persist();const msg=JSON.stringify({type:"mark_position",data:m});for(const c of wss.clients)if(c.readyState===WebSocket.OPEN)c.send(msg);res.json({ok:true})});
 app.get("/api/boats",(_q,r)=>r.json([...boats.values()]));app.get("/api/tracks",(_q,r)=>r.json(Object.fromEntries(tracks)));
