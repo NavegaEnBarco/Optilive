@@ -11,8 +11,8 @@ android {
         applicationId = "com.optilive.tracker"
         minSdk = 26
         targetSdk = 35
-        versionCode = 170
-        versionName = "1.14.3-restored"
+        versionCode = 171
+        versionName = "1.14.4-classification"
     }
 
     compileOptions {

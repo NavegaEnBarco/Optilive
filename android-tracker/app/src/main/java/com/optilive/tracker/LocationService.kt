@@ -68,6 +68,7 @@ class LocationService : Service() {
         val p=getSharedPreferences("optilive_profile",MODE_PRIVATE)
         val sail=p.getString("sail","") ?: ""; if(sail.isBlank()) return
         val obj=JSONObject().put("sail",sail).put("lat",l.latitude).put("lon",l.longitude)
+            .put("name",listOf(p.getString("first", ""),p.getString("last", "")).filterNotNull().joinToString(" ").trim()).put("club",p.getString("club", "")).put("category",p.getString("category", ""))
             .put("accuracy",l.accuracy.toDouble()).put("speedKnots",knots.toDouble()).put("timestamp",System.currentTimeMillis())
         synchronized(this) {
             val prefs=getSharedPreferences("optilive_queue",MODE_PRIVATE)
