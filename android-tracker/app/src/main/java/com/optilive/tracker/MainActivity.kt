@@ -38,8 +38,9 @@ class MainActivity : AppCompatActivity() {
             val lon = intent?.getDoubleExtra("lon", 0.0) ?: 0.0
             val acc = intent?.getFloatExtra("accuracy", 0f) ?: 0f
             val satellites = intent?.getIntExtra("satellites", 0) ?: 0
-            satelliteDisplay.text = "$satellites sat."
-            status.text = "●  GPS ACTIVO\nPrecisión %.1f m".format(acc)
+            satelliteDisplay.text = if (satellites > 0) "$satellites sat." else "Sat. —"
+            status.text = (if (acc > 25f || acc <= 0f) "Señal débil" else "Posición disponible") + "\nPrecisión %.1f m".format(acc)
+            status.setTextColor(android.graphics.Color.parseColor(if(acc > 25f || acc <= 0f) "#996000" else "#087F5B"))
             val speed = intent?.getFloatExtra("speed", 0f) ?: 0f
             val distance = intent?.getFloatExtra("distance", 0f) ?: 0f
             coordinates.text = ""
@@ -49,7 +50,7 @@ class MainActivity : AppCompatActivity() {
             lastPosition.text = "Última posición: " + java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date())
             telemetry.text = ""
             speedDisplay.text = "%.1f\nnudos\nVelocidad".format(speed)
-            distanceDisplay.text = if (distance >= 1000f) "%.1f\nkm\nDistancia recorrida".format(distance / 1000f) else "%.0f\nm\nDistancia recorrida".format(distance)
+            distanceDisplay.text = if (distance >= 1000f) "%.1f km\nDistancia".format(distance / 1000f) else "%.0f m\nDistancia".format(distance)
         }
     }
 
@@ -59,7 +60,10 @@ class MainActivity : AppCompatActivity() {
             val sent = intent?.getIntExtra("sent", 0) ?: 0
             val pending = intent?.getIntExtra("pending", 0) ?: 0
             val serverUrl = getSharedPreferences("optilive_profile", MODE_PRIVATE).getString("server_url", DEFAULT_SERVER) ?: DEFAULT_SERVER
-            serverStatus.text = if (connected) "●  Servidor conectado\n$serverUrl" else "●  Servidor sin conexión\n$serverUrl"
+            val stamp = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date())
+            val syncPrefs = getSharedPreferences("optilive_profile", MODE_PRIVATE)
+            if (connected) syncPrefs.edit().putString("last_sync", stamp).apply()
+            serverStatus.text = (if (connected) "Conectado" else "Sin conexión") + " · $pending pendientes\nÚltima sincronización: " + syncPrefs.getString("last_sync", "—")
             sentDisplay.text = "$sent\nposiciones enviadas"
             pendingDisplay.text = "$pending\npendientes (offline)"
         }
@@ -133,14 +137,27 @@ class MainActivity : AppCompatActivity() {
                 rawSail.startsWith("ESP") -> rawSail
                 else -> "ESP $rawSail"
             }
-            sailDisplay.text = "🇪🇸  $normalizedSail"
+            sailDisplay.text = normalizedSail
             val fullName = "${first.text} ${last.text}".trim().ifBlank { "Regatista" }
             val meta = listOf(category.selectedItem?.toString().orEmpty(), club.text.toString()).filter { it.isNotBlank() }.joinToString("   |   ")
             sailorDisplay.text = if (meta.isBlank()) fullName else "$fullName\n$meta"
-            findViewById<TextView>(R.id.profileBoat).text = "⛵  $normalizedSail"
-            findViewById<TextView>(R.id.profileCategory).text = "👥  ${category.selectedItem?.toString().orEmpty()}"
-            findViewById<TextView>(R.id.profileClub).text = "⚑  ${club.text.toString().ifBlank { "Club" }}"
+            findViewById<TextView>(R.id.profileBoat).text = normalizedSail
+            findViewById<TextView>(R.id.profileCategory).text = "${category.selectedItem?.toString().orEmpty()}"
+            findViewById<TextView>(R.id.profileClub).text = "${club.text.toString().ifBlank { "Club" }}"
         }
+        val root=findViewById<android.view.ViewGroup>(android.R.id.content).getChildAt(0) as android.view.ViewGroup
+        val header=root.getChildAt(0) as android.view.ViewGroup
+        val titleColumn=header.getChildAt(1) as android.view.ViewGroup
+        val summary=titleColumn.getChildAt(1) as TextView
+        summary.text="Sin prueba activa"
+        Thread {
+            try {
+                val con=java.net.URL((prefs.getString("server_url",DEFAULT_SERVER)?:DEFAULT_SERVER).trimEnd('/')+"/api/regattas/current").openConnection() as java.net.HttpURLConnection
+                con.connectTimeout=5000;con.readTimeout=5000
+                val data=try{org.json.JSONObject(con.inputStream.bufferedReader().use{it.readText()})}finally{con.disconnect()}
+                runOnUiThread{if(!isDestroyed)summary.text=data.optJSONObject("regatta")?.optString("name")?:"Sin prueba activa"}
+            }catch(_:Exception){runOnUiThread{if(!isDestroyed)summary.text="Regata no disponible"}}
+        }.start()
         refreshProfile()
 
         findViewById<Button>(R.id.saveButton).setOnClickListener {
@@ -193,4 +210,6 @@ class MainActivity : AppCompatActivity() {
         ContextCompat.startForegroundService(this, Intent(this, LocationService::class.java))
         status.text = "●  GPS INICIANDO\nBuscando posición..."
     }
+
+ override fun onPostCreate(b:Bundle?){super.onPostCreate(b);AppChrome.install(this,0,true) ;if(intent.getBooleanExtra("settings",false))findViewById<android.view.View>(R.id.settingsPanel).visibility=android.view.View.VISIBLE}
 }
