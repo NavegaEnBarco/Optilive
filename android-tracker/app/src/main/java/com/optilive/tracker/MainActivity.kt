@@ -12,6 +12,26 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
+    private val uiHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val refreshState = object : Runnable { override fun run() { refreshGpsStatus(); uiHandler.postDelayed(this, 5000L) } }
+    private fun setTrackingUi(active:Boolean) {
+        findViewById<Button>(R.id.startTracking).text=if(active) "■  DETENER SEGUIMIENTO" else "▶  INICIAR SEGUIMIENTO"
+        findViewById<Button>(R.id.startTracking).backgroundTintList=android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor(if(active) "#E34B55" else "#1689E8"))
+        findViewById<TextView>(R.id.trackingState).text=if(active) "Seguimiento activo" else "Seguimiento detenido"
+    }
+    private fun refreshGpsStatus() {
+        val p=getSharedPreferences("optilive_runtime",MODE_PRIVATE)
+        val active=p.getBoolean("running",false)
+        setTrackingUi(active)
+        val age=System.currentTimeMillis()-p.getLong("fix_at",0L)
+        val fresh=active && age in 0..15000
+        val acc=p.getFloat("accuracy",0f)
+        val good=fresh && acc>0f && acc<=15f
+        status.text=if(!active) "GPS DETENIDO" else if(!fresh) "BUSCANDO SEÑAL GPS" else (if(good) "SEÑAL GPS BUENA" else "SEÑAL GPS DÉBIL")+"\nPrecisión %.1f m".format(acc)
+        satelliteDisplay.text=if(fresh) "${p.getInt("satellites",0)} satélites" else "— satélites"
+        status.setTextColor(android.graphics.Color.parseColor(if(good) "#087F5B" else if(fresh) "#996000" else "#6B7B8C"))
+        findViewById<android.view.View>(R.id.gpsCard).setBackgroundResource(if(good)R.drawable.card_green else R.drawable.card_white)
+    }
     private lateinit var status: TextView
     private lateinit var coordinates: TextView
     private lateinit var serverStatus: TextView
@@ -38,18 +58,17 @@ class MainActivity : AppCompatActivity() {
             val lon = intent?.getDoubleExtra("lon", 0.0) ?: 0.0
             val acc = intent?.getFloatExtra("accuracy", 0f) ?: 0f
             val satellites = intent?.getIntExtra("satellites", 0) ?: 0
-            satelliteDisplay.text = "$satellites sat."
-            status.text = "●  GPS ACTIVO\nPrecisión %.1f m".format(acc)
+            refreshGpsStatus()
             val speed = intent?.getFloatExtra("speed", 0f) ?: 0f
             val distance = intent?.getFloatExtra("distance", 0f) ?: 0f
             coordinates.text = ""
             latDisplay.text = "Latitud\n%.6f".format(lat)
             lonDisplay.text = "Longitud\n%.6f".format(lon)
             accuracyDisplay.text = "Precisión\n%.1f m".format(acc)
-            lastPosition.text = "Última posición: " + java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date())
+            lastPosition.text = "Última posición: " + java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date(getSharedPreferences("optilive_runtime",MODE_PRIVATE).getLong("fix_at",System.currentTimeMillis())))
             telemetry.text = ""
-            speedDisplay.text = "%.1f\nnudos\nVelocidad".format(speed)
-            distanceDisplay.text = if (distance >= 1000f) "%.1f\nkm\nDistancia recorrida".format(distance / 1000f) else "%.0f\nm\nDistancia recorrida".format(distance)
+            speedDisplay.text = "%.1f kn".format(speed)
+            distanceDisplay.text = if (distance >= 1000f) "%.1f km".format(distance / 1000f) else "%.0f m".format(distance)
         }
     }
 
@@ -58,10 +77,14 @@ class MainActivity : AppCompatActivity() {
             val connected = intent?.getBooleanExtra("connected", false) ?: false
             val sent = intent?.getIntExtra("sent", 0) ?: 0
             val pending = intent?.getIntExtra("pending", 0) ?: 0
-            val serverUrl = getSharedPreferences("optilive_profile", MODE_PRIVATE).getString("server_url", DEFAULT_SERVER) ?: DEFAULT_SERVER
-            serverStatus.text = if (connected) "●  Servidor conectado\n$serverUrl" else "●  Servidor sin conexión\n$serverUrl"
-            sentDisplay.text = "$sent\nposiciones enviadas"
-            pendingDisplay.text = "$pending\npendientes (offline)"
+            val runtime=getSharedPreferences("optilive_runtime",MODE_PRIVATE)
+            val syncAt=runtime.getLong("last_sync",0L)
+            val stamp=if(syncAt>0)java.text.SimpleDateFormat("HH:mm:ss",java.util.Locale.getDefault()).format(java.util.Date(syncAt))else "—"
+            val recent=System.currentTimeMillis()-runtime.getLong("connection_at",0L)<30000
+            val title=if(runtime.getLong("connection_at",0L)==0L) "Conexión sin comprobar" else if(connected && recent) "Conectado" else if(connected) "Último envío confirmado" else "Sin conexión"
+            serverStatus.text=title+"\n"+(if(pending==0) "Todo sincronizado" else "$pending posiciones pendientes")+"\nÚltima sincronización · $stamp"
+            sentDisplay.text = sent.toString()
+            pendingDisplay.text = pending.toString()
         }
     }
 
@@ -133,9 +156,9 @@ class MainActivity : AppCompatActivity() {
                 rawSail.startsWith("ESP") -> rawSail
                 else -> "ESP $rawSail"
             }
-            sailDisplay.text = "🇪🇸  $normalizedSail"
+            sailDisplay.text = normalizedSail
             val fullName = "${first.text} ${last.text}".trim().ifBlank { "Regatista" }
-            val meta = listOf(category.selectedItem?.toString().orEmpty(), club.text.toString()).filter { it.isNotBlank() }.joinToString("   |   ")
+            val meta = listOf(category.selectedItem?.toString().orEmpty(), club.text.toString()).filter { it.isNotBlank() }.joinToString(" · ")
             sailorDisplay.text = if (meta.isBlank()) fullName else "$fullName\n$meta"
             findViewById<TextView>(R.id.profileBoat).text = "⛵  $normalizedSail"
             findViewById<TextView>(R.id.profileCategory).text = "👥  ${category.selectedItem?.toString().orEmpty()}"
@@ -154,16 +177,22 @@ class MainActivity : AppCompatActivity() {
         findViewById<android.view.View>(R.id.settingsButton).apply { isLongClickable=true; setOnLongClickListener { startActivity(Intent(this@MainActivity, AdminActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)); true } }
         findViewById<android.view.View>(R.id.settingsButton).setOnClickListener {
             val p = findViewById<android.view.View>(R.id.settingsPanel)
-            p.visibility = if (p.visibility == android.view.View.VISIBLE) android.view.View.GONE else android.view.View.VISIBLE
+            if(p.visibility==android.view.View.VISIBLE)p.visibility=android.view.View.GONE else showProfileEditor()
         }
-        findViewById<android.view.View>(R.id.homeButton).apply { isClickable=true; isFocusable=true; setOnClickListener { startActivity(Intent(this@MainActivity, TrackingActivity::class.java)) } }
+        findViewById<android.view.View>(R.id.homeButton).setOnClickListener { }
         findViewById<android.view.View>(R.id.topSettings).setOnClickListener { showProfileEditor() }
         findViewById<android.view.View>(R.id.racesButton).apply { isClickable=true; isFocusable=true; setOnClickListener { startActivity(Intent(this@MainActivity, ClassificationActivity::class.java)) } }
         findViewById<android.view.View>(R.id.historyButton).setOnClickListener { startActivity(Intent(this@MainActivity, RegattasActivity::class.java)) }
-        findViewById<Button>(R.id.startTracking).setOnClickListener { requestAndStart() }
+        findViewById<Button>(R.id.startTracking).setOnClickListener {
+            if(getSharedPreferences("optilive_runtime",MODE_PRIVATE).getBoolean("running",false)){
+                stopService(Intent(this,LocationService::class.java))
+                getSharedPreferences("optilive_runtime",MODE_PRIVATE).edit().putBoolean("running",false).apply()
+                refreshGpsStatus()
+            } else requestAndStart()
+        }
         findViewById<android.view.View>(R.id.stopTracking).setOnClickListener {
             stopService(Intent(this, LocationService::class.java))
-            status.text = "●  GPS DETENIDO\nSeguimiento parado"
+            refreshGpsStatus()
         }
     }
 
@@ -171,9 +200,16 @@ class MainActivity : AppCompatActivity() {
         super.onStart()
         ContextCompat.registerReceiver(this, locationReceiver, IntentFilter(LocationService.ACTION_LOCATION), ContextCompat.RECEIVER_NOT_EXPORTED)
         ContextCompat.registerReceiver(this, serverReceiver, IntentFilter(LocationService.ACTION_SERVER), ContextCompat.RECEIVER_NOT_EXPORTED)
+        val p=getSharedPreferences("optilive_runtime",MODE_PRIVATE)
+        val queue=getSharedPreferences("optilive_queue",MODE_PRIVATE)
+        val pending=try{org.json.JSONArray(queue.getString("items","[]")).length()}catch(_:Exception){0}
+        serverReceiver.onReceive(this,Intent(LocationService.ACTION_SERVER).putExtra("connected",p.getBoolean("connected",false)).putExtra("sent",p.getInt("sent",0)).putExtra("pending",pending))
+        if(p.contains("lat"))locationReceiver.onReceive(this,Intent(LocationService.ACTION_LOCATION).putExtra("lat",p.getString("lat","0")!!.toDouble()).putExtra("lon",p.getString("lon","0")!!.toDouble()).putExtra("accuracy",p.getFloat("accuracy",0f)).putExtra("speed",p.getFloat("speed",0f)).putExtra("distance",p.getFloat("distance",0f)).putExtra("satellites",p.getInt("satellites",0)))
+        uiHandler.post(refreshState)
     }
 
     override fun onStop() {
+        uiHandler.removeCallbacksAndMessages(null)
         unregisterReceiver(locationReceiver)
         unregisterReceiver(serverReceiver)
         super.onStop()
@@ -191,6 +227,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun startGps() {
         ContextCompat.startForegroundService(this, Intent(this, LocationService::class.java))
-        status.text = "●  GPS INICIANDO\nBuscando posición..."
+        setTrackingUi(true)
+        status.text = "BUSCANDO SEÑAL GPS"
     }
 }

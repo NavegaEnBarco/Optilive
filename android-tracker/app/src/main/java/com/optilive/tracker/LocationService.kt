@@ -48,6 +48,7 @@ class LocationService : Service() {
     override fun onCreate() { super.onCreate(); createChannel(); client=LocationServices.getFusedLocationProviderClient(this); locationManager=getSystemService(LocationManager::class.java) }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        getSharedPreferences("optilive_runtime",MODE_PRIVATE).edit().putBoolean("running",true).apply()
         startForeground(1001, NotificationCompat.Builder(this, CHANNEL)
             .setSmallIcon(android.R.drawable.ic_menu_mylocation).setContentTitle("OptiLive GPS activo")
             .setContentText("Seguimiento de regata activo").setOngoing(true).build())
@@ -59,6 +60,7 @@ class LocationService : Service() {
     }
 
     private fun broadcastGps(l: Location, knots: Float) {
+        getSharedPreferences("optilive_runtime",MODE_PRIVATE).edit().putString("lat",l.latitude.toString()).putString("lon",l.longitude.toString()).putFloat("accuracy",l.accuracy).putFloat("speed",knots).putFloat("distance",distanceM).putInt("satellites",satellitesUsed).putLong("fix_at",l.time).apply()
         sendBroadcast(Intent(ACTION_LOCATION).setPackage(packageName)
             .putExtra("lat",l.latitude).putExtra("lon",l.longitude).putExtra("accuracy",l.accuracy)
             .putExtra("speed",knots).putExtra("distance",distanceM).putExtra("satellites",satellitesUsed))
@@ -76,7 +78,7 @@ class LocationService : Service() {
             arr.put(obj)
             while(arr.length()>5000) arr.remove(0)
             prefs.edit().putString("items",arr.toString()).apply()
-            broadcastServer(false,arr.length())
+            broadcastServer(getSharedPreferences("optilive_runtime",MODE_PRIVATE).getBoolean("connected",false),arr.length(),false)
         }
     }
 
@@ -87,7 +89,9 @@ class LocationService : Service() {
             synchronized(this) {
                 val prefs=getSharedPreferences("optilive_queue",MODE_PRIVATE)
                 val arr=try{JSONArray(prefs.getString("items","[]"))}catch(_:Exception){JSONArray()}
+                if(arr.length()==0)return@execute
                 var done=0
+                var failed=false
                 try {
                     while(done<arr.length()) {
                         val body=arr.getJSONObject(done).toString()
@@ -96,24 +100,28 @@ class LocationService : Service() {
                         c.setRequestProperty("Content-Type","application/json")
                         c.outputStream.use{it.write(body.toByteArray())}
                         val ok=c.responseCode in 200..299; c.disconnect()
-                        if(!ok) break
+                        if(!ok){failed=true;break}
                         done++; sent++
                     }
-                } catch(_:Exception) {}
+                } catch(_:Exception) {failed=true}
                 if(done>0) {
                     val left=JSONArray(); for(i in done until arr.length()) left.put(arr.get(i))
                     prefs.edit().putString("items",left.toString()).apply()
-                    broadcastServer(true,left.length())
+                    getSharedPreferences("optilive_runtime",MODE_PRIVATE).edit().putLong("last_sync",System.currentTimeMillis()).apply()
+                    broadcastServer(!failed,left.length())
                 } else broadcastServer(false,arr.length())
             }
         }
     }
 
-    private fun broadcastServer(connected:Boolean,pending:Int) {
+    private fun broadcastServer(connected:Boolean,pending:Int,checked:Boolean=true) {
+        val state=getSharedPreferences("optilive_runtime",MODE_PRIVATE).edit().putBoolean("connected",connected).putInt("sent",sent)
+        if(checked)state.putLong("connection_at",System.currentTimeMillis())
+        state.apply()
         sendBroadcast(Intent(ACTION_SERVER).setPackage(packageName).putExtra("connected",connected).putExtra("sent",sent).putExtra("pending",pending))
     }
 
-    override fun onDestroy(){client.removeLocationUpdates(callback); try { locationManager.unregisterGnssStatusCallback(gnssCallback) } catch(_:Exception){}; io.shutdown();super.onDestroy()}
+    override fun onDestroy(){getSharedPreferences("optilive_runtime",MODE_PRIVATE).edit().putBoolean("running",false).apply();client.removeLocationUpdates(callback); try { locationManager.unregisterGnssStatusCallback(gnssCallback) } catch(_:Exception){}; io.shutdown();super.onDestroy()}
     override fun onBind(intent:Intent?):IBinder?=null
     private fun createChannel(){getSystemService(NotificationManager::class.java).createNotificationChannel(NotificationChannel(CHANNEL,"Seguimiento GPS",NotificationManager.IMPORTANCE_LOW))}
     companion object{const val CHANNEL="optilive_gps";const val ACTION_LOCATION="com.optilive.tracker.LOCATION";const val ACTION_SERVER="com.optilive.tracker.SERVER"}
