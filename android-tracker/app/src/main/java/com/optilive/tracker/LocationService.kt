@@ -24,6 +24,8 @@ class LocationService : Service() {
     private var sent = 0
     private var distanceM = 0f
     private var previous: Location? = null
+    private var rejected = 0
+    private var lastAcceptedElapsed = -1L
     private lateinit var locationManager: LocationManager
     private var satellitesUsed = 0
     private val gnssCallback = object : GnssStatus.Callback() {
@@ -36,13 +38,34 @@ class LocationService : Service() {
 
     private val callback = object : LocationCallback() {
         override fun onLocationResult(result: LocationResult) {
-            val l = result.lastLocation ?: return
-            previous?.let { distanceM += it.distanceTo(l) }; previous = l
-            val knots = if (l.hasSpeed()) l.speed * 1.943844f else 0f
-            broadcastGps(l, knots)
-            enqueue(l, knots)
-            flushQueue()
+            var accepted = false
+            for (l in result.locations.sortedBy { it.elapsedRealtimeNanos }) {
+                if (!validFix(l)) { rejected++; continue }
+                previous?.let { prev ->
+                    val metres = prev.distanceTo(l)
+                    if (metres > (prev.accuracy + l.accuracy) * 0.5f) distanceM += metres
+                }
+                previous = l
+                lastAcceptedElapsed = l.elapsedRealtimeNanos
+                val knots = if (l.hasSpeed()) l.speed * 1.943844f else 0f
+                broadcastGps(l, knots)
+                enqueue(l, knots)
+                accepted = true
+            }
+            if (accepted) flushQueue()
         }
+    }
+
+    private fun validFix(l: Location): Boolean {
+        if (!l.hasAccuracy() || !l.accuracy.isFinite() || l.accuracy > 35f) return false
+        val ageMs = (android.os.SystemClock.elapsedRealtimeNanos() - l.elapsedRealtimeNanos) / 1000000L
+        if (ageMs > 10000L || ageMs < -1000L || lastAcceptedElapsed >= l.elapsedRealtimeNanos) return false
+        previous?.let { prev ->
+            val dt = (l.elapsedRealtimeNanos - prev.elapsedRealtimeNanos) / 1e9
+            if (dt <= 0.0) return false
+            if (prev.distanceTo(l) > 12.0 * dt + 3.0 * (prev.accuracy + l.accuracy)) return false
+        }
+        return true
     }
 
     override fun onCreate() { super.onCreate(); createChannel(); client=LocationServices.getFusedLocationProviderClient(this); locationManager=getSystemService(LocationManager::class.java) }
@@ -53,14 +76,14 @@ class LocationService : Service() {
             .setSmallIcon(android.R.drawable.ic_menu_mylocation).setContentTitle("OptiLive GPS activo")
             .setContentText("Seguimiento de regata activo").setOngoing(true).build())
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED) {
-            client.requestLocationUpdates(LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY,2000L).setMinUpdateIntervalMillis(1000L).build(),callback,mainLooper)
+            client.requestLocationUpdates(LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY,1000L).setMinUpdateIntervalMillis(1000L).build(),callback,mainLooper)
             locationManager.registerGnssStatusCallback(gnssCallback, android.os.Handler(mainLooper))
         }
         return START_STICKY
     }
 
     private fun broadcastGps(l: Location, knots: Float) {
-        getSharedPreferences("optilive_runtime",MODE_PRIVATE).edit().putString("lat",l.latitude.toString()).putString("lon",l.longitude.toString()).putFloat("accuracy",l.accuracy).putFloat("speed",knots).putFloat("distance",distanceM).putInt("satellites",satellitesUsed).putLong("fix_at",l.time).apply()
+        getSharedPreferences("optilive_runtime",MODE_PRIVATE).edit().putString("lat",l.latitude.toString()).putString("lon",l.longitude.toString()).putFloat("accuracy",l.accuracy).putFloat("speed",knots).putFloat("distance",distanceM).putInt("satellites",satellitesUsed).putLong("fix_at",l.time).putInt("gps_rejected",rejected).apply()
         sendBroadcast(Intent(ACTION_LOCATION).setPackage(packageName)
             .putExtra("lat",l.latitude).putExtra("lon",l.longitude).putExtra("accuracy",l.accuracy)
             .putExtra("speed",knots).putExtra("distance",distanceM).putExtra("satellites",satellitesUsed))
@@ -71,7 +94,7 @@ class LocationService : Service() {
         val sail=p.getString("sail","") ?: ""; if(sail.isBlank()) return
         val obj=JSONObject().put("sail",sail).put("lat",l.latitude).put("lon",l.longitude)
             .put("name",listOf(p.getString("first", ""),p.getString("last", "")).filterNotNull().joinToString(" ").trim()).put("club",p.getString("club", "")).put("category",p.getString("category", ""))
-            .put("accuracy",l.accuracy.toDouble()).put("speedKnots",knots.toDouble()).put("timestamp",System.currentTimeMillis())
+            .put("accuracy",l.accuracy.toDouble()).put("speedKnots",knots.toDouble()).put("timestamp",l.time).put("satellites",satellitesUsed)
         synchronized(this) {
             val prefs=getSharedPreferences("optilive_queue",MODE_PRIVATE)
             val arr=try{JSONArray(prefs.getString("items","[]"))}catch(_:Exception){JSONArray()}
