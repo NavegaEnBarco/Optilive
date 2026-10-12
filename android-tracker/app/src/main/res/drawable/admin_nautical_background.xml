@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+ <item><shape android:shape="rectangle"><gradient android:angle="270" android:startColor="#CDE8F4" android:centerColor="#EDF8FB" android:endColor="#B8DBE8"/></shape></item>
+ <item android:top="230dp"><shape android:shape="rectangle"><gradient android:angle="270" android:startColor="#8CC5D5" android:endColor="#3C95B4"/></shape></item>
+ <item android:top="210dp"><vector android:width="360dp" android:height="500dp" android:viewportWidth="360" android:viewportHeight="500">
+  <path android:fillColor="#FFFFFF" android:fillAlpha=".52" android:pathData="M20,30 L64,30 L64,155 Z M72,20 L72,157 L129,157 Z M229,75 L262,75 L262,176 Z M268,68 L268,176 L310,176 Z"/>
+  <path android:strokeColor="#386A7E" android:strokeWidth="2" android:pathData="M70,17 L70,165 M266,63 L266,181"/>
+  <path android:fillColor="#165D7B" android:pathData="M32,160 Q85,177 134,160 L121,173 L49,173 Z M218,178 Q270,192 320,178 L307,191 L233,191 Z"/>
+  <path android:strokeColor="#EAF9FC" android:strokeAlpha=".65" android:strokeWidth="2" android:pathData="M0,213 Q30,203 60,213 T120,213 T180,213 T240,213 T300,213 T360,213 M0,260 Q30,250 60,260 T120,260 T180,260 T240,260 T300,260 T360,260 M0,320 Q30,310 60,320 T120,320 T180,320 T240,320 T300,320 T360,320"/>
+ </vector></item>
+ <item><shape android:shape="rectangle"><solid android:color="#C7FFFFFF"/></shape></item>
+</layer-list>
