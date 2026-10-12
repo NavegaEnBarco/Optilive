@@ -25,6 +25,7 @@ class LocationService : Service() {
     private var distanceM = 0f
     private var previous: Location? = null
     private var rejected = 0
+    private val kalman = AdaptivePositionKalman()
     private var lastAcceptedElapsed = -1L
     private lateinit var locationManager: LocationManager
     private var satellitesUsed = 0
@@ -46,10 +47,11 @@ class LocationService : Service() {
                     if (metres > (prev.accuracy + l.accuracy) * 0.5f) distanceM += metres
                 }
                 previous = l
+                val smooth = kalman.update(l)
                 lastAcceptedElapsed = l.elapsedRealtimeNanos
                 val knots = if (l.hasSpeed()) l.speed * 1.943844f else 0f
-                broadcastGps(l, knots)
-                enqueue(l, knots)
+                broadcastGps(l, knots, smooth)
+                enqueue(l, knots, smooth)
                 accepted = true
             }
             if (accepted) flushQueue()
@@ -82,19 +84,19 @@ class LocationService : Service() {
         return START_STICKY
     }
 
-    private fun broadcastGps(l: Location, knots: Float) {
+    private fun broadcastGps(l: Location, knots: Float, smooth: Pair<Double, Double>) {
         getSharedPreferences("optilive_runtime",MODE_PRIVATE).edit().putString("lat",l.latitude.toString()).putString("lon",l.longitude.toString()).putFloat("accuracy",l.accuracy).putFloat("speed",knots).putFloat("distance",distanceM).putInt("satellites",satellitesUsed).putLong("fix_at",l.time).putInt("gps_rejected",rejected).apply()
         sendBroadcast(Intent(ACTION_LOCATION).setPackage(packageName)
             .putExtra("lat",l.latitude).putExtra("lon",l.longitude).putExtra("accuracy",l.accuracy)
             .putExtra("speed",knots).putExtra("distance",distanceM).putExtra("satellites",satellitesUsed))
     }
 
-    private fun enqueue(l: Location, knots: Float) {
+    private fun enqueue(l: Location, knots: Float, smooth: Pair<Double, Double>) {
         val p=getSharedPreferences("optilive_profile",MODE_PRIVATE)
         val sail=p.getString("sail","") ?: ""; if(sail.isBlank()) return
         val obj=JSONObject().put("sail",sail).put("lat",l.latitude).put("lon",l.longitude)
             .put("name",listOf(p.getString("first", ""),p.getString("last", "")).filterNotNull().joinToString(" ").trim()).put("club",p.getString("club", "")).put("category",p.getString("category", ""))
-            .put("accuracy",l.accuracy.toDouble()).put("speedKnots",knots.toDouble()).put("timestamp",l.time).put("satellites",satellitesUsed)
+            .put("filteredLat",smooth.first).put("filteredLon",smooth.second).put("accuracy",l.accuracy.toDouble()).put("speedKnots",knots.toDouble()).put("timestamp",l.time).put("satellites",satellitesUsed)
         synchronized(this) {
             val prefs=getSharedPreferences("optilive_queue",MODE_PRIVATE)
             val arr=try{JSONArray(prefs.getString("items","[]"))}catch(_:Exception){JSONArray()}
