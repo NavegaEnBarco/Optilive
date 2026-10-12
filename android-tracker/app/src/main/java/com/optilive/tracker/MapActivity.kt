@@ -26,6 +26,7 @@ class MapActivity : AppCompatActivity() {
     private var regattaServer = MainActivity.DEFAULT_SERVER
     private val regattaRefresh = object : Runnable { override fun run() { loadCurrentRegatta(); handler.postDelayed(this, 15000L) } }
     private var raceStartedAt = 0L
+    private var windOverlayEnabled = false
     private val clockTick = object:Runnable{override fun run(){val now=System.currentTimeMillis();val local=SimpleDateFormat("HH:mm:ss",Locale.getDefault()).format(Date(now));val elapsed=if(raceStartedAt>0L)(now-raceStartedAt).coerceAtLeast(0)/1000 else 0L;val race=String.format(Locale.getDefault(),"%02d:%02d:%02d",elapsed/3600,(elapsed%3600)/60,elapsed%60);findViewById<TextView>(R.id.localTimeTop)?.text=local;findViewById<TextView>(R.id.localTimeBottom)?.text=local;findViewById<TextView>(R.id.raceTimeTop)?.text=race;findViewById<TextView>(R.id.raceTimeBottom)?.text=race;handler.postDelayed(this,1000)}}
     override fun onCreate(b: Bundle?) {
         super.onCreate(b)
@@ -60,13 +61,21 @@ class MapActivity : AppCompatActivity() {
         w.settings.mixedContentMode=WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         w.settings.cacheMode=WebSettings.LOAD_NO_CACHE
         w.clearCache(true)
-        val mapUrl=(if(u.isBlank()) "https://optilive-node-production.up.railway.app" else u).trimEnd('/')+"/?v=20261004-boat-v2-"+System.currentTimeMillis()
+        val mapUrl=(if(u.isBlank()) "https://optilive-node-production.up.railway.app" else u).trimEnd('/')+"/?app=1&v=20261012-wind-"+System.currentTimeMillis()
         w.loadUrl(mapUrl)
         handler.post(clockTick)
         loadWind()
         findViewById<TextView>(R.id.windInfo).setOnClickListener{startActivity(Intent(this,WeatherActivity::class.java))}
         findViewById<TextView>(R.id.weatherNav).setOnClickListener{startActivity(Intent(this,WeatherActivity::class.java))}
         findViewById<TextView>(R.id.backTracking).setOnClickListener{finish()}
+        findViewById<TextView>(R.id.windToggleMap).setOnClickListener{ button ->
+            w.evaluateJavascript("if(typeof window.optiliveToggleWind==='function'){window.optiliveToggleWind();true}else{false}") { result ->
+                if(result=="true"){
+                    windOverlayEnabled=!windOverlayEnabled
+                    (button as TextView).apply { text=if(windOverlayEnabled)"≋\\nViento ON" else "≋\\nViento";setTextColor(if(windOverlayEnabled) android.graphics.Color.rgb(10,150,215) else android.graphics.Color.rgb(7,90,145)) }
+                } else android.widget.Toast.makeText(this,"Capa de viento aún no disponible",android.widget.Toast.LENGTH_SHORT).show()
+            }
+        }
         findViewById<TextView>(R.id.zoomIn).setOnClickListener{w.evaluateJavascript("if(window.map)map.zoomIn()",null)}
         findViewById<TextView>(R.id.zoomOut).setOnClickListener{w.evaluateJavascript("if(window.map)map.zoomOut()",null)}
         var overlaysVisible=true
