@@ -11,9 +11,21 @@ class AdminActivity:AppCompatActivity(){
  private val server="https://optilive-node-production.up.railway.app"
  override fun onCreate(b:Bundle?){super.onCreate(b);setContentView(R.layout.activity_admin)
   val user=findViewById<EditText>(R.id.adminUser);val pass=findViewById<EditText>(R.id.adminPass);val msg=findViewById<TextView>(R.id.adminMessage);val panel=findViewById<View>(R.id.adminPanel)
+  val loginFields=findViewById<View>(R.id.loginFields)
+  val roleDescription=findViewById<TextView>(R.id.roleDescription)
+  fun chooseRole(role:String, description:String){
+   loginFields.visibility=View.VISIBLE
+   panel.visibility=View.GONE
+   roleDescription.text=description
+   msg.text=""
+   getSharedPreferences("optilive_admin",MODE_PRIVATE).edit().putString("selected_role",role).apply()
+  }
+  findViewById<Button>(R.id.roleAdmin).setOnClickListener{chooseRole("admin","Administrador · gestión de regatas y pruebas")}
+  findViewById<Button>(R.id.roleBuoy).setOnClickListener{chooseRole("balizador","Balizador · acceso sujeto a permisos del servidor")}
+  findViewById<Button>(R.id.roleClub).setOnClickListener{chooseRole("club","Club · acceso sujeto a permisos del servidor")}
   findViewById<Button>(R.id.adminLogin).setOnClickListener{
    if(user.text.isBlank()||pass.text.isBlank()){msg.text="Introduce usuario y contraseña";return@setOnClickListener}
-   msg.text="Conectando…";thread{try{val c=URL("$server/api/auth/login").openConnection() as HttpURLConnection;c.requestMethod="POST";c.setRequestProperty("Content-Type","application/json");c.doOutput=true;c.outputStream.use{it.write(JSONObject().put("username",user.text.toString()).put("password",pass.text.toString()).toString().toByteArray())};val ok=c.responseCode==200;val body=(if(ok)c.inputStream else c.errorStream).bufferedReader().readText();runOnUiThread{if(ok){val j=JSONObject(body);getSharedPreferences("optilive_admin",MODE_PRIVATE).edit().putString("token",j.getString("token")).putString("role",j.optString("role")).apply();pass.text.clear();msg.text="Administrador conectado";panel.visibility=View.VISIBLE}else msg.text="Usuario o contraseña incorrectos"}}catch(e:Exception){runOnUiThread{msg.text="No se puede conectar al servidor"}}}}
+   msg.text="Conectando…";thread{try{val c=URL("$server/api/auth/login").openConnection() as HttpURLConnection;c.requestMethod="POST";c.setRequestProperty("Content-Type","application/json");c.doOutput=true;c.outputStream.use{it.write(JSONObject().put("username",user.text.toString()).put("password",pass.text.toString()).toString().toByteArray())};val ok=c.responseCode==200;val body=(if(ok)c.inputStream else c.errorStream).bufferedReader().readText();runOnUiThread{if(ok){val j=JSONObject(body);getSharedPreferences("optilive_admin",MODE_PRIVATE).edit().putString("token",j.getString("token")).putString("role",j.optString("role")).apply();pass.text.clear();val selected=getSharedPreferences("optilive_admin",MODE_PRIVATE).getString("selected_role","admin");val actual=j.optString("role","admin");if(selected=="admin" && actual=="admin"){msg.text="Administrador conectado";panel.visibility=View.VISIBLE}else{msg.text="Sesión iniciada · funciones del perfil pendientes de habilitar";panel.visibility=View.GONE}}else msg.text="Usuario o contraseña incorrectos"}}catch(e:Exception){runOnUiThread{msg.text="No se puede conectar al servidor"}}}}
   findViewById<Button>(R.id.newRegatta).setOnClickListener{createRegatta()}
   findViewById<Button>(R.id.manageRaces).setOnClickListener{startActivity(android.content.Intent(this,RaceAdminActivity::class.java))}
   findViewById<Button>(R.id.manageCourse).setOnClickListener{startActivity(android.content.Intent(this,AdminCourseMapActivity::class.java))}
