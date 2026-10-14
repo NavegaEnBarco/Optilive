@@ -2,7 +2,7 @@ name: Build OptiLive APK
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "feature/xboat-pro-onboarding" ]
     paths:
       - "android-tracker/**"
       - ".github/workflows/android-apk.yml"
