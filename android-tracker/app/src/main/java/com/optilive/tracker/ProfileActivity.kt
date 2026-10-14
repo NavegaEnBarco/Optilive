@@ -75,7 +75,7 @@ class ProfileActivity : AppCompatActivity() {
     private fun showCategoryPicker(spinner: Spinner, options: Array<String>) {
         val dialog = android.app.Dialog(this, android.R.style.Theme_Material_NoActionBar_Fullscreen)
         val root = createPickerRoot("Categoría")
-        val content = root.getChildAt(1) as LinearLayout
+        val content = (root.getChildAt(1) as LinearLayout).getChildAt(2) as LinearLayout
         val selected = intArrayOf(spinner.selectedItemPosition.coerceAtLeast(0))
         options.forEachIndexed { index, name ->
             val item = pickerOption(name, index == selected[0])
