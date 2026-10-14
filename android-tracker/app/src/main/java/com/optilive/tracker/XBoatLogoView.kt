@@ -14,7 +14,7 @@ class XBoatLogoView @JvmOverloads constructor(context: Context, attrs: Attribute
         super.onDraw(c)
         val cx = width / 2f
         val u = resources.displayMetrics.density
-        val cy = 43f * u
+        val cy = 49f * u
         p.style = Paint.Style.FILL
         for (row in -6..6) for (col in -6..6) {
             if (abs(abs(row)-abs(col)) > 1) continue
@@ -28,9 +28,9 @@ class XBoatLogoView @JvmOverloads constructor(context: Context, attrs: Attribute
         p.color = Color.WHITE
         p.typeface = android.graphics.Typeface.create("sans-serif-light", 0)
         p.textSize = 21f*u
-        c.drawText("X  B  O  A  T", cx, 103f*u, p)
+        c.drawText("X  B  O  A  T", cx, 117f*u, p)
         p.textSize = 7f*u
         p.color = Color.rgb(78,144,192)
-        c.drawText("T R A C K E R   O P T I M I S T", cx, 116f*u, p)
+        c.drawText("T R A C K E R   O P T I M I S T", cx, 131f*u, p)
     }
 }
