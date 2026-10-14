@@ -52,7 +52,15 @@ class ProfileActivity : AppCompatActivity() {
         ).distinct().sorted()
         club.setOnClickListener { showClubPicker(club, clubs) }
         val options = arrayOf("Sub11", "Sub13", "Sub15")
-        category.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, options)
+        category.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, options).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+        category.setSelection(0)
+        category.post {
+            val selectedView = category.selectedView as? TextView
+            selectedView?.setTextColor(Color.WHITE)
+            selectedView?.textSize = 18f
+        }
         category.setOnTouchListener { _, _ ->
             showCategoryPicker(category, options)
             true
