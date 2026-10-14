@@ -6,11 +6,16 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.view.View
+import android.util.AttributeSet
 import kotlin.math.abs
 import kotlin.math.sin
 
 /** X BOAT brand artwork, drawn natively so it stays sharp at any screen resolution. */
-class XBoatSplashView(context: Context) : View(context) {
+class XBoatSplashView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) : View(context, attrs, defStyleAttr) {
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val navy = Color.rgb(2, 13, 27)
     private val cyan = Color.rgb(91, 203, 255)
