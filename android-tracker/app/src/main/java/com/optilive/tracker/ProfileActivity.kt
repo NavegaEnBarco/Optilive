@@ -35,7 +35,7 @@ class ProfileActivity : AppCompatActivity() {
                 .setTitle("País de la vela")
                 .setItems(codes) { _, index ->
                     countryCode = codes[index]
-                    country.text = "$"+"{countryCode}  ⌄"
+                    country.text = countryCode + "  ⌄"
                 }.show()
         }
         val first = findViewById<EditText>(R.id.entryFirst)
@@ -59,12 +59,12 @@ class ProfileActivity : AppCompatActivity() {
         }
         if (savedInstanceState == null) {
             val savedSail = prefs.getString("sail", "").orEmpty().trim()
-            val match = Regex("^([A-Za-z]{3})\\\\s+(.*)$").find(savedSail)
+            val match = Regex("""^([A-Za-z]{3})\s+(.*)$""").find(savedSail)
             if (match != null) {
                 countryCode = match.groupValues[1].uppercase()
                 sail.setText(match.groupValues[2])
             } else sail.setText(savedSail.filter { it.isDigit() })
-            country.text = "$"+"{countryCode}  ⌄"
+            country.text = countryCode + "  ⌄"
             first.setText(prefs.getString("first", ""))
             last.setText(prefs.getString("last", ""))
             club.setText(prefs.getString("club", ""))
