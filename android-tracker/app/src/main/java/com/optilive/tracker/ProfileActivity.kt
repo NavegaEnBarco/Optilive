@@ -2,6 +2,10 @@ package com.optilive.tracker
 
 import android.content.Intent
 import android.os.Bundle
+import android.net.Uri
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
@@ -9,10 +13,20 @@ import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
 
 class ProfileActivity : AppCompatActivity() {
+    private val avatarPicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
+        uri?.let {
+            try { contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION) } catch (_: Exception) {}
+            getSharedPreferences("optilive_profile", MODE_PRIVATE).edit().putString("avatar_uri", it.toString()).apply()
+            findViewById<ImageView>(R.id.entryAvatar).apply { setImageURI(it); setPadding(0, 0, 0, 0) }
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
         val prefs = getSharedPreferences("optilive_profile", MODE_PRIVATE)
+        prefs.getString("avatar_uri", null)?.let { uri -> try { findViewById<ImageView>(R.id.entryAvatar).setImageURI(Uri.parse(uri)) } catch (_: Exception) {} }
+        findViewById<ImageView>(R.id.entryAvatar).setOnClickListener { avatarPicker.launch(arrayOf("image/*")) }
+        findViewById<TextView>(R.id.entryChoosePhoto).setOnClickListener { avatarPicker.launch(arrayOf("image/*")) }
         val sail = findViewById<EditText>(R.id.entrySail)
         val first = findViewById<EditText>(R.id.entryFirst)
         val last = findViewById<EditText>(R.id.entryLast)
