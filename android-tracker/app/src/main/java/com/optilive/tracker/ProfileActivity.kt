@@ -73,32 +73,85 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
     private fun showCategoryPicker(spinner: Spinner, options: Array<String>) {
-        val selected = spinner.selectedItemPosition.coerceAtLeast(0)
-        val group = RadioGroup(this).apply {
-            orientation = RadioGroup.VERTICAL
-            setPadding(28, 18, 28, 18)
-            setBackgroundColor(Color.rgb(3, 19, 39))
+        val dialog = android.app.Dialog(this, android.R.style.Theme_Material_NoActionBar_Fullscreen)
+        val root = createPickerRoot("Categoría")
+        val content = root.getChildAt(1) as LinearLayout
+        val selected = intArrayOf(spinner.selectedItemPosition.coerceAtLeast(0))
+        options.forEachIndexed { index, name ->
+            val item = pickerOption(name, index == selected[0])
+            content.addView(item, LinearLayout.LayoutParams(-1, dp(76)).apply { bottomMargin = dp(12) })
+            item.setOnClickListener {
+                selected[0] = index
+                for (i in 0 until options.size) {
+                    (content.getChildAt(i) as TextView).background = optionBackground(i == index)
+                    (content.getChildAt(i) as TextView).text = options[i] + if (i == index) "    ✓" else "    ○"
+                }
+            }
         }
-        options.forEachIndexed { index, option ->
-            group.addView(RadioButton(this).apply {
-                id = 1000 + index
-                text = option
-                textSize = 19f
-                setTextColor(Color.WHITE)
-                setPadding(14, 20, 14, 20)
-                isChecked = index == selected
-            })
-        }
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Selecciona tu categoría")
-            .setView(group)
-            .setNegativeButton("Cancelar", null)
-            .create()
-        group.setOnCheckedChangeListener { _, checked ->
-            spinner.setSelection(checked - 1000)
-            dialog.dismiss()
-        }
+        addConfirm(root) { spinner.setSelection(selected[0]); dialog.dismiss() }
+        dialog.setContentView(root)
         dialog.show()
+    }
+
+    private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
+
+    private fun optionBackground(active: Boolean): android.graphics.drawable.GradientDrawable {
+        return android.graphics.drawable.GradientDrawable(
+            android.graphics.drawable.GradientDrawable.Orientation.LEFT_RIGHT,
+            if (active) intArrayOf(Color.rgb(2, 83, 150), Color.rgb(0, 32, 67))
+            else intArrayOf(Color.rgb(3, 27, 53), Color.rgb(2, 19, 38))
+        ).apply {
+            cornerRadius = dp(15).toFloat()
+            setStroke(dp(1), if (active) Color.rgb(47, 189, 255) else Color.rgb(28, 75, 115))
+        }
+    }
+
+    private fun pickerOption(label: String, active: Boolean): TextView =
+        TextView(this).apply {
+            text = label + if (active) "    ✓" else "    ○"
+            textSize = 20f
+            setTextColor(Color.WHITE)
+            gravity = android.view.Gravity.CENTER_VERTICAL
+            setPadding(dp(22), 0, dp(14), 0)
+            background = optionBackground(active)
+        }
+
+    private fun createPickerRoot(title: String): android.widget.FrameLayout {
+        val frame = android.widget.FrameLayout(this)
+        frame.addView(XBoatWaveView(this), android.widget.FrameLayout.LayoutParams(-1, -1))
+        val vertical = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(24), dp(50), dp(24), dp(30))
+        }
+        frame.addView(vertical, android.widget.FrameLayout.LayoutParams(-1, -1))
+        vertical.addView(TextView(this).apply {
+            text = "✦  X  B O A T"
+            textSize = 24f
+            gravity = android.view.Gravity.CENTER
+            setTextColor(Color.WHITE)
+        })
+        vertical.addView(TextView(this).apply {
+            text = title
+            textSize = 25f
+            gravity = android.view.Gravity.CENTER
+            setTextColor(Color.WHITE)
+            setPadding(0, dp(22), 0, dp(22))
+        })
+        val options = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        vertical.addView(options, LinearLayout.LayoutParams(-1, 0, 1f))
+        return frame
+    }
+
+    private fun addConfirm(root: android.widget.FrameLayout, action: () -> Unit) {
+        val vertical = root.getChildAt(1) as LinearLayout
+        vertical.addView(Button(this).apply {
+            text = "Confirmar"
+            textSize = 19f
+            isAllCaps = false
+            setTextColor(Color.WHITE)
+            background = androidx.core.content.ContextCompat.getDrawable(this@ProfileActivity, R.drawable.xboat_blue_button)
+            setOnClickListener { action() }
+        }, LinearLayout.LayoutParams(-1, dp(60)))
     }
 
     private fun showClubPicker(target: EditText, clubs: List<String>) {
