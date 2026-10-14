@@ -27,6 +27,17 @@ class ProfileActivity : AppCompatActivity() {
         setContentView(R.layout.activity_profile)
         val prefs = getSharedPreferences("optilive_profile", MODE_PRIVATE)
         val sail = findViewById<EditText>(R.id.entrySail)
+        val country = findViewById<TextView>(R.id.entryCountry)
+        var countryCode = "ESP"
+        country.setOnClickListener {
+            val codes = arrayOf("ESP", "POR", "FRA", "ITA", "GBR", "GER", "NED", "BEL", "USA")
+            androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("País de la vela")
+                .setItems(codes) { _, index ->
+                    countryCode = codes[index]
+                    country.text = "$"+"{countryCode}  ⌄"
+                }.show()
+        }
         val first = findViewById<EditText>(R.id.entryFirst)
         val last = findViewById<EditText>(R.id.entryLast)
         val club = findViewById<EditText>(R.id.entryClub)
@@ -47,7 +58,13 @@ class ProfileActivity : AppCompatActivity() {
             true
         }
         if (savedInstanceState == null) {
-            sail.setText(prefs.getString("sail", ""))
+            val savedSail = prefs.getString("sail", "").orEmpty().trim()
+            val match = Regex("^([A-Za-z]{3})\\\\s+(.*)$").find(savedSail)
+            if (match != null) {
+                countryCode = match.groupValues[1].uppercase()
+                sail.setText(match.groupValues[2])
+            } else sail.setText(savedSail.filter { it.isDigit() })
+            country.text = "$"+"{countryCode}  ⌄"
             first.setText(prefs.getString("first", ""))
             last.setText(prefs.getString("last", ""))
             club.setText(prefs.getString("club", ""))
@@ -65,7 +82,7 @@ class ProfileActivity : AppCompatActivity() {
                 club.error = "Selecciona tu club"
                 return@setOnClickListener
             }
-            prefs.edit().putString("sail", sail.text.toString().trim())
+            prefs.edit().putString("sail", countryCode + " " + sail.text.toString().trim())
                 .putString("first", first.text.toString().trim()).putString("last", last.text.toString().trim())
                 .putString("club", club.text.toString().trim()).putString("category", category.selectedItem.toString()).apply()
             startActivity(Intent(this, MainActivity::class.java))
