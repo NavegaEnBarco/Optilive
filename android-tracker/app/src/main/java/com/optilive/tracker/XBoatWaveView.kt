@@ -17,24 +17,24 @@ class XBoatWaveView @JvmOverloads constructor(context: Context, attrs: Attribute
         val h = height.toFloat()
         canvas.drawColor(Color.rgb(2, 13, 27))
         val phase = (System.currentTimeMillis() - start) / 4200.0
-        for (row in 0..21) {
+        for (row in 0..28) {
             val path = Path()
             for (step in 0..110) {
                 val x = w * step / 110f
-                val wave = sin(x / w * 9.0 + phase + row * .18) * (18 + row * 1.5)
-                val y = h * .84f + row * 5.0f + wave.toFloat()
+                val wave = sin(x / w * 9.0 + phase + row * .18) * (25 + row * 2.2)
+                val y = h * .78f + row * 5.0f + wave.toFloat()
                 if (step == 0) path.moveTo(x, y) else path.lineTo(x, y)
             }
             paint.style = Paint.Style.STROKE
-            paint.strokeWidth = if (row % 4 == 0) 1.4f else .65f
-            paint.color = Color.argb(if (row % 4 == 0) 145 else 60, 44, 174, 255)
+            paint.strokeWidth = if (row % 4 == 0) 1.8f else .85f
+            paint.color = Color.argb(if (row % 4 == 0) 200 else 88, 44, 174, 255)
             canvas.drawPath(path, paint)
         }
         paint.style = Paint.Style.FILL
-        for (row in 0..13) for (col in 0..45) {
+        for (row in 0..17) for (col in 0..45) {
             val x = w * col / 45f
-            val y = h * .81f + row * 10f + sin(col * .25 + phase + row * .2).toFloat() * 22f
-            paint.color = Color.argb(55 + (row % 3) * 20, 71, 194, 255)
+            val y = h * .77f + row * 10f + sin(col * .25 + phase + row * .2).toFloat() * 22f
+            paint.color = Color.argb(85 + (row % 3) * 25, 71, 194, 255)
             canvas.drawCircle(x, y, .8f, paint)
         }
         postInvalidateDelayed(50)
