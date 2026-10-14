@@ -20,9 +20,9 @@ class SplashActivity : AppCompatActivity() {
         supportActionBar?.hide()
         @Suppress("DEPRECATION")
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
-        window.navigationBarColor = android.graphics.Color.rgb(5, 35, 76)
+        window.navigationBarColor = android.graphics.Color.rgb(2, 13, 27)
         setContentView(R.layout.activity_splash)
-        findViewById<TextView>(R.id.splashVersion).text = "OptiLive ${packageManager.getPackageInfo(packageName, 0).versionName}"
+        findViewById<TextView>(R.id.splashVersion).text = "X BOAT ${packageManager.getPackageInfo(packageName, 0).versionName}"
         handler.postDelayed(openProfile, 3000L)
     }
 
