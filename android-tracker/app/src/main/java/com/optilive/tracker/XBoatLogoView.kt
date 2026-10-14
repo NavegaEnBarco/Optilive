@@ -14,14 +14,14 @@ class XBoatLogoView @JvmOverloads constructor(context: Context, attrs: Attribute
         super.onDraw(c)
         val cx = width / 2f
         val u = resources.displayMetrics.density
-        val cy = 47f * u
+        val cy = 43f * u
         p.style = Paint.Style.FILL
-        for (row in -5..5) for (col in -5..5) {
+        for (row in -6..6) for (col in -6..6) {
             if (abs(abs(row)-abs(col)) > 1) continue
-            val distance = (abs(row)+abs(col))/10f
+            val distance = (abs(row)+abs(col))/12f
             p.color = if (col > 1 && row < 2) Color.rgb(62,170,255) else Color.WHITE
             p.alpha = (245 - distance * 130).toInt().coerceIn(70,255)
-            c.drawCircle(cx + col * 7.1f*u, cy + row*7.1f*u, (2.65f-distance*.75f)*u, p)
+            c.drawCircle(cx + col * 7.0f*u, cy + row*7.0f*u, (2.8f-distance*.9f)*u, p)
         }
         p.alpha = 255
         p.textAlign = Paint.Align.CENTER
