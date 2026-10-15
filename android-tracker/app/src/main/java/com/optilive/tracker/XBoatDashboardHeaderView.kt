@@ -41,11 +41,11 @@ class XBoatDashboardHeaderView @JvmOverloads constructor(context: Context, attrs
   }
   paint.style = Paint.Style.FILL
   for(r in -6..6)for(c in -6..6) {
-   if(abs(abs(r)-abs(c))>0)continue
+   if(abs(abs(r)-abs(c))>1)continue
    val edge=(abs(r)+abs(c))/12f
-   paint.color=if(c>0 && r<1) Color.rgb(23,176,255) else Color.WHITE
-   paint.alpha=(255-edge*100).toInt().coerceIn(120,255)
-   canvas.drawCircle(cx+c*4.4f*d,cy+r*4.4f*d,(2.55f-edge*.35f)*d,paint)
+   paint.color=if(c>1 && r<2) Color.rgb(62,170,255) else Color.WHITE
+   paint.alpha=(245-edge*130).toInt().coerceIn(70,255)
+   canvas.drawCircle(cx+c*4.4f*d,cy+r*4.4f*d,(2.8f-edge*.9f)*d,paint)
   }
   paint.alpha=255
   paint.textAlign=Paint.Align.CENTER
