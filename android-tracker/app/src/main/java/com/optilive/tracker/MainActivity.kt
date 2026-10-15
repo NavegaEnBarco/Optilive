@@ -116,7 +116,7 @@ class MainActivity : AppCompatActivity() {
         val photoPrefs = getSharedPreferences("optilive_profile", MODE_PRIVATE)
         photoPrefs.getString("cover_uri", photoPrefs.getString("photo_uri", null))?.let { try { profileCover.setImageURI(Uri.parse(it)); profileCover.setPadding(0,0,0,0) } catch (_: Exception) {} }
         photoPrefs.getString("avatar_uri", photoPrefs.getString("photo_uri", null))?.let { try { profilePhoto.setImageURI(Uri.parse(it)); profilePhoto.setPadding(0,0,0,0) } catch (_: Exception) {} }
-        findViewById<android.view.View>(R.id.changePhoto).setOnClickListener { showProfileEditor() }
+        findViewById<android.view.View>(R.id.changePhoto).setOnClickListener { findViewById<android.view.View>(R.id.settingsPanel).visibility = android.view.View.VISIBLE }
         findViewById<android.view.View>(R.id.profileCover).setOnClickListener { coverPicker.launch(arrayOf("image/*")) }
         findViewById<android.view.View>(R.id.profilePhoto).setOnClickListener { avatarPicker.launch(arrayOf("image/*")) }
         findViewById<android.view.View>(R.id.photoBadge).setOnClickListener { avatarPicker.launch(arrayOf("image/*")) }
