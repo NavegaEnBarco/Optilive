@@ -27,8 +27,8 @@ class MainActivity : AppCompatActivity() {
         val fresh=active && age in 0..15000
         val acc=p.getFloat("accuracy",0f)
         val good=fresh && acc>0f && acc<=15f
-        status.text=if(!active) "GPS DETENIDO" else if(!fresh) "BUSCANDO SEÑAL GPS" else (if(good) "SEÑAL GPS BUENA" else "SEÑAL GPS DÉBIL")+"\nPrecisión %.1f m".format(acc)
-        satelliteDisplay.text=if(fresh) "${p.getInt("satellites",0)} satélites" else "— satélites"
+        status.text=if(!active) "● Detenido" else if(!fresh) "● Buscando señal" else (if(good) "● Señal buena" else "● Señal débil")+" · %.1f m".format(acc)
+        satelliteDisplay.text=if(fresh) "${p.getInt("satellites",0)}\nsatélites" else "—\nsatélites"
         status.setTextColor(android.graphics.Color.parseColor(if(good) "#49DBAF" else if(fresh) "#FFD17A" else "#A8C5DB"))
         findViewById<android.view.View>(R.id.gpsCard).setBackgroundResource(R.drawable.xboat_panel_dark)
     }
@@ -67,8 +67,8 @@ class MainActivity : AppCompatActivity() {
             accuracyDisplay.text = "Precisión\n%.1f m".format(acc)
             lastPosition.text = "Última posición: " + java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date(getSharedPreferences("optilive_runtime",MODE_PRIVATE).getLong("fix_at",System.currentTimeMillis())))
             telemetry.text = ""
-            speedDisplay.text = "%.1f kn".format(speed)
-            distanceDisplay.text = if (distance >= 1000f) "%.1f km".format(distance / 1000f) else "%.0f m".format(distance)
+            speedDisplay.text = "%.1f".format(speed)
+            distanceDisplay.text = "%.1f".format(distance / 1000f)
         }
     }
 
@@ -116,7 +116,7 @@ class MainActivity : AppCompatActivity() {
         val photoPrefs = getSharedPreferences("optilive_profile", MODE_PRIVATE)
         photoPrefs.getString("cover_uri", photoPrefs.getString("photo_uri", null))?.let { try { profileCover.setImageURI(Uri.parse(it)); profileCover.setPadding(0,0,0,0) } catch (_: Exception) {} }
         photoPrefs.getString("avatar_uri", photoPrefs.getString("photo_uri", null))?.let { try { profilePhoto.setImageURI(Uri.parse(it)); profilePhoto.setPadding(0,0,0,0) } catch (_: Exception) {} }
-        findViewById<android.view.View>(R.id.changePhoto).setOnClickListener { coverPicker.launch(arrayOf("image/*")) }
+        findViewById<android.view.View>(R.id.changePhoto).setOnClickListener { showProfileEditor() }
         findViewById<android.view.View>(R.id.profileCover).setOnClickListener { coverPicker.launch(arrayOf("image/*")) }
         findViewById<android.view.View>(R.id.profilePhoto).setOnClickListener { avatarPicker.launch(arrayOf("image/*")) }
         findViewById<android.view.View>(R.id.photoBadge).setOnClickListener { avatarPicker.launch(arrayOf("image/*")) }
