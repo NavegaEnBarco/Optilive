@@ -9,8 +9,15 @@ import kotlin.math.*
 /** Tracking-screen-only masthead: dotted X, centered lettering and blue wave mesh. */
 class XBoatDashboardHeaderView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : View(context, attrs) {
  private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+ private var phase = 0f
+ private var lastFrame = 0L
+ override fun onAttachedToWindow() { super.onAttachedToWindow(); lastFrame = 0L; postInvalidateOnAnimation() }
+ override fun onDetachedFromWindow() { lastFrame = 0L; super.onDetachedFromWindow() }
  override fun onDraw(canvas: Canvas) {
   super.onDraw(canvas)
+  val now = android.os.SystemClock.uptimeMillis()
+  if (lastFrame != 0L) phase += ((now - lastFrame).coerceIn(0L, 50L) / 1000f) * 1.15f
+  lastFrame = now
   val d = resources.displayMetrics.density
   val w = width.toFloat()
   val cx = w / 2f
@@ -26,7 +33,7 @@ class XBoatDashboardHeaderView @JvmOverloads constructor(context: Context, attrs
    for (i in 0..70) {
     val t=i/70f
     val x=if(side==0) t*cx else w-t*cx
-    val wave=sin(t*6.0+line*.13).toFloat()*11f*d
+    val wave=sin(t*6.0+line*.13+phase).toFloat()*11f*d
     val y=y0 - 21f*d*t + wave
     if(i==0)path.moveTo(x,y) else path.lineTo(x,y)
    }
@@ -50,6 +57,7 @@ class XBoatDashboardHeaderView @JvmOverloads constructor(context: Context, attrs
   paint.color=Color.rgb(106,185,235)
   paint.textSize=10f*d
   canvas.drawText("G P S   T R A C K E R",cx,109f*d,paint)
+  if (isAttachedToWindow && visibility == VISIBLE) postInvalidateDelayed(33L)
  }
  private fun Paint.letterSpacingCompat() { }
 }
