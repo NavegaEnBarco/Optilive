@@ -135,7 +135,7 @@ class MainActivity : AppCompatActivity() {
         val last = findViewById<EditText>(R.id.lastName)
         val category = findViewById<Spinner>(R.id.category)
         val categoryOptions = arrayOf("Sub11", "Sub13", "Sub15")
-        category.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categoryOptions)
+        category.adapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categoryOptions).also { adapter -> adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }\n        category.setBackgroundColor(android.graphics.Color.rgb(4, 31, 53))\n        category.setPopupBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.rgb(9, 45, 75)))
         val club = findViewById<EditText>(R.id.club)
         val serverUrl = findViewById<EditText>(R.id.serverUrl)
         val prefs = getSharedPreferences("optilive_profile", MODE_PRIVATE)
