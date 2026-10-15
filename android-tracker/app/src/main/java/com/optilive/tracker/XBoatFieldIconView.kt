@@ -25,7 +25,7 @@ class XBoatFieldIconView @JvmOverloads constructor(context: Context, attrs: Attr
         canvas.save()
         canvas.translate(cx - 22f * scale, cy - 22f * scale)
         canvas.scale(scale, scale)
-        paint.color = Color.rgb(115, 195, 255)
+        paint.color = Color.rgb(24, 178, 255)
         paint.style = Paint.Style.STROKE
         paint.strokeWidth = 2.6f
         paint.strokeCap = Paint.Cap.ROUND
@@ -48,11 +48,12 @@ class XBoatFieldIconView @JvmOverloads constructor(context: Context, attrs: Attr
                 canvas.drawArc(8f, 23f, 36f, 43f, 180f, 180f, false, paint)
                 line(8f, 34f, 8f, 40f, 36f, 40f, 36f, 34f)
             }
-            2 -> { // Group
-                canvas.drawCircle(17f, 13f, 6f, paint)
-                canvas.drawCircle(32f, 17f, 5f, paint)
-                canvas.drawArc(3f, 22f, 31f, 43f, 180f, 180f, false, paint)
-                canvas.drawArc(25f, 25f, 43f, 42f, 180f, 150f, false, paint)
+            2 -> { // ID card for surname
+                canvas.drawRoundRect(3f, 8f, 41f, 36f, 3f, 3f, paint)
+                canvas.drawCircle(14f, 18f, 4f, paint)
+                canvas.drawArc(8f, 23f, 20f, 32f, 180f, 180f, false, paint)
+                line(25f, 17f, 35f, 17f)
+                line(25f, 25f, 35f, 25f)
             }
             3 -> { // Trophy
                 line(11f, 8f, 33f, 8f, 31f, 24f, 26f, 30f, 18f, 30f, 13f, 24f, 11f, 8f)
@@ -60,9 +61,19 @@ class XBoatFieldIconView @JvmOverloads constructor(context: Context, attrs: Attr
                 canvas.drawArc(27f, 11f, 42f, 27f, 260f, 195f, false, paint)
                 line(22f, 30f, 22f, 37f, 13f, 37f, 31f, 37f)
             }
-            else -> { // Pennant
+            4 -> { // Nautical pennant
                 line(10f, 4f, 10f, 42f)
-                line(10f, 6f, 37f, 17f, 10f, 29f)
+                line(10f, 6f, 38f, 17f, 10f, 29f)
+                canvas.drawCircle(18f, 17f, 2f, paint)
+            }
+            else -> { // Cloud / connected server
+                val cloud = Path()
+                cloud.moveTo(11f, 34f)
+                cloud.cubicTo(1f, 34f, 2f, 22f, 12f, 21f)
+                cloud.cubicTo(14f, 8f, 33f, 8f, 35f, 22f)
+                cloud.cubicTo(45f, 23f, 45f, 35f, 34f, 35f)
+                cloud.close()
+                canvas.drawPath(cloud, paint)
             }
         }
         canvas.restore()
