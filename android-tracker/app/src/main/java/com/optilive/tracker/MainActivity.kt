@@ -16,7 +16,7 @@ class MainActivity : AppCompatActivity() {
     private val refreshState = object : Runnable { override fun run() { refreshGpsStatus(); uiHandler.postDelayed(this, 5000L) } }
     private fun setTrackingUi(active:Boolean) {
         findViewById<Button>(R.id.startTracking).text=if(active) "■  DETENER SEGUIMIENTO" else "▶  INICIAR SEGUIMIENTO"
-        findViewById<Button>(R.id.startTracking).backgroundTintList=android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor(if(active) "#E34B55" else "#1689E8"))
+        findViewById<Button>(R.id.startTracking).apply { backgroundTintList = if (active) android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#D84557")) else null }
         findViewById<TextView>(R.id.trackingState).text=if(active) "Seguimiento activo" else "Seguimiento detenido"
     }
     private fun refreshGpsStatus() {
@@ -29,8 +29,8 @@ class MainActivity : AppCompatActivity() {
         val good=fresh && acc>0f && acc<=15f
         status.text=if(!active) "GPS DETENIDO" else if(!fresh) "BUSCANDO SEÑAL GPS" else (if(good) "SEÑAL GPS BUENA" else "SEÑAL GPS DÉBIL")+"\nPrecisión %.1f m".format(acc)
         satelliteDisplay.text=if(fresh) "${p.getInt("satellites",0)} satélites" else "— satélites"
-        status.setTextColor(android.graphics.Color.parseColor(if(good) "#087F5B" else if(fresh) "#996000" else "#6B7B8C"))
-        findViewById<android.view.View>(R.id.gpsCard).setBackgroundResource(if(good)R.drawable.card_green else R.drawable.card_white)
+        status.setTextColor(android.graphics.Color.parseColor(if(good) "#49DBAF" else if(fresh) "#FFD17A" else "#A8C5DB"))
+        findViewById<android.view.View>(R.id.gpsCard).setBackgroundResource(R.drawable.xboat_panel_dark)
     }
     private lateinit var status: TextView
     private lateinit var coordinates: TextView
