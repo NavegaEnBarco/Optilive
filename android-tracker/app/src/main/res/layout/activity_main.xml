@@ -72,42 +72,42 @@
    <TextView android:id="@+id/lastPosition" android:layout_width="match_parent" android:layout_height="28dp" android:gravity="center" android:text="Última posición: --:--:--" android:textColor="#A8C5DB" android:textSize="12sp" />
    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="10dp" android:background="@drawable/xboat_settings_group" android:layout_marginTop="8dp">
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="10dp">
-     <TextView android:layout_width="43dp" android:layout_height="wrap_content" android:gravity="center" android:text="⛵" android:textSize="24sp" android:textColor="#14B8FF"/>
+     <com.optilive.tracker.XBoatFieldIconView android:layout_width="43dp" android:layout_height="48dp" android:tag="0"/>
      <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
       <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Número de vela" android:textColor="#36BEFF" android:textSize="12sp" android:paddingBottom="4dp"/>
       <EditText android:id="@+id/sailNumber" android:layout_width="match_parent" android:layout_height="49dp" android:singleLine="true" android:inputType="textCapWords" android:background="@drawable/xboat_settings_field" android:textColor="#F5FAFF" android:textColorHint="#8BAFC8" android:textSize="16sp" android:paddingHorizontal="12dp" android:hint="Número de vela"/>
      </LinearLayout>
     </LinearLayout>
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="10dp">
-     <TextView android:layout_width="43dp" android:layout_height="wrap_content" android:gravity="center" android:text="♙" android:textSize="24sp" android:textColor="#14B8FF"/>
+     <com.optilive.tracker.XBoatFieldIconView android:layout_width="43dp" android:layout_height="48dp" android:tag="1"/>
      <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
       <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Nombre" android:textColor="#36BEFF" android:textSize="12sp" android:paddingBottom="4dp"/>
       <EditText android:id="@+id/firstName" android:layout_width="match_parent" android:layout_height="49dp" android:singleLine="true" android:inputType="textCapWords" android:background="@drawable/xboat_settings_field" android:textColor="#F5FAFF" android:textColorHint="#8BAFC8" android:textSize="16sp" android:paddingHorizontal="12dp" android:hint="Nombre"/>
      </LinearLayout>
     </LinearLayout>
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="10dp">
-     <TextView android:layout_width="43dp" android:layout_height="wrap_content" android:gravity="center" android:text="♙" android:textSize="24sp" android:textColor="#14B8FF"/>
+     <com.optilive.tracker.XBoatFieldIconView android:layout_width="43dp" android:layout_height="48dp" android:tag="2"/>
      <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
       <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Apellidos" android:textColor="#36BEFF" android:textSize="12sp" android:paddingBottom="4dp"/>
       <EditText android:id="@+id/lastName" android:layout_width="match_parent" android:layout_height="49dp" android:singleLine="true" android:inputType="textCapWords" android:background="@drawable/xboat_settings_field" android:textColor="#F5FAFF" android:textColorHint="#8BAFC8" android:textSize="16sp" android:paddingHorizontal="12dp" android:hint="Apellidos"/>
      </LinearLayout>
     </LinearLayout>
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="10dp">
-     <TextView android:layout_width="43dp" android:layout_height="wrap_content" android:gravity="center" android:text="◉" android:textSize="24sp" android:textColor="#14B8FF"/>
+     <com.optilive.tracker.XBoatFieldIconView android:layout_width="43dp" android:layout_height="48dp" android:tag="3"/>
      <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
       <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Categoría" android:textColor="#36BEFF" android:textSize="12sp" android:paddingBottom="4dp"/>
       <Spinner android:id="@+id/category" android:layout_width="match_parent" android:layout_height="49dp" android:spinnerMode="dropdown" android:background="@drawable/xboat_settings_field" android:paddingHorizontal="12dp"/>
      </LinearLayout>
     </LinearLayout>
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="10dp">
-     <TextView android:layout_width="43dp" android:layout_height="wrap_content" android:gravity="center" android:text="⌂" android:textSize="24sp" android:textColor="#14B8FF"/>
+     <com.optilive.tracker.XBoatFieldIconView android:layout_width="43dp" android:layout_height="48dp" android:tag="4"/>
      <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
       <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Club" android:textColor="#36BEFF" android:textSize="12sp" android:paddingBottom="4dp"/>
       <EditText android:id="@+id/club" android:layout_width="match_parent" android:layout_height="49dp" android:singleLine="true" android:inputType="textCapWords" android:background="@drawable/xboat_settings_field" android:textColor="#F5FAFF" android:textColorHint="#8BAFC8" android:textSize="16sp" android:paddingHorizontal="12dp" android:hint="Club"/>
      </LinearLayout>
     </LinearLayout>
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="10dp">
-     <TextView android:layout_width="43dp" android:layout_height="wrap_content" android:gravity="center" android:text="↗" android:textSize="24sp" android:textColor="#14B8FF"/>
+     <com.optilive.tracker.XBoatFieldIconView android:layout_width="43dp" android:layout_height="48dp" android:tag="5"/>
      <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
       <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Servidor" android:textColor="#36BEFF" android:textSize="12sp" android:paddingBottom="4dp"/>
       <EditText android:id="@+id/serverUrl" android:layout_width="match_parent" android:layout_height="49dp" android:singleLine="false" android:inputType="textUri" android:background="@drawable/xboat_settings_field" android:textColor="#F5FAFF" android:textColorHint="#8BAFC8" android:textSize="16sp" android:paddingHorizontal="12dp" android:hint="Servidor OptiLive"/>
