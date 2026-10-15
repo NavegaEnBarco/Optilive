@@ -135,9 +135,13 @@ class MainActivity : AppCompatActivity() {
         val last = findViewById<EditText>(R.id.lastName)
         val category = findViewById<Spinner>(R.id.category)
         val categoryOptions = arrayOf("Sub11", "Sub13", "Sub15")
-        category.adapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categoryOptions).also { adapter -> adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
-        category.setBackgroundColor(android.graphics.Color.rgb(4, 31, 53))
+        category.adapter = object : ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categoryOptions) {
+            override fun getView(position: Int, convertView: android.view.View?, parent: android.view.ViewGroup): android.view.View = super.getView(position, convertView, parent).also { (it as? android.widget.TextView)?.setTextColor(android.graphics.Color.WHITE) }
+            override fun getDropDownView(position: Int, convertView: android.view.View?, parent: android.view.ViewGroup): android.view.View = super.getDropDownView(position, convertView, parent).also { (it as? android.widget.TextView)?.setTextColor(android.graphics.Color.WHITE) }
+        }
+        category.setBackgroundResource(R.drawable.xboat_settings_field)
         category.setPopupBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.rgb(9, 45, 75)))
+        category.setOnTouchListener { _, _ -> false }
         val club = findViewById<EditText>(R.id.club)
         val serverUrl = findViewById<EditText>(R.id.serverUrl)
         val prefs = getSharedPreferences("optilive_profile", MODE_PRIVATE)
