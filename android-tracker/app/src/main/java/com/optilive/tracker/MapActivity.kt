@@ -72,7 +72,7 @@ class MapActivity : AppCompatActivity() {
             w.evaluateJavascript("if(typeof window.optiliveToggleWind==='function'){window.optiliveToggleWind();true}else{false}") { result ->
                 if(result=="true"){
                     windOverlayEnabled=!windOverlayEnabled
-                    (button as TextView).apply { text=if(windOverlayEnabled)"≋\\nViento ON" else "≋\\nViento";setTextColor(if(windOverlayEnabled) android.graphics.Color.rgb(10,150,215) else android.graphics.Color.rgb(7,90,145)) }
+                    (button as TextView).apply { text=if(windOverlayEnabled)"〰\\nViento ON" else "〰\\nViento";setTextColor(if(windOverlayEnabled) android.graphics.Color.rgb(10,150,215) else android.graphics.Color.rgb(7,90,145)) }
                 } else android.widget.Toast.makeText(this,"Capa de viento aún no disponible",android.widget.Toast.LENGTH_SHORT).show()
             }
         }
